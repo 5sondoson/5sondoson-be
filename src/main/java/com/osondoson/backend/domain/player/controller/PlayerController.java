@@ -2,6 +2,7 @@ package com.osondoson.backend.domain.player.controller;
 
 import com.osondoson.backend.common.response.APISuccessResponse;
 import com.osondoson.backend.domain.player.dto.request.PlayerSearchRequest;
+import com.osondoson.backend.domain.player.dto.response.PlayerHistoryResponse;
 import com.osondoson.backend.domain.player.dto.response.PlayerProfileResponse;
 import com.osondoson.backend.domain.player.dto.response.PlayerSearchResponse;
 import com.osondoson.backend.domain.player.service.PlayerService;
@@ -42,5 +43,12 @@ public class PlayerController {
             @PathVariable Long playerId
     ) {
         return APISuccessResponse.of(HttpStatus.OK, playerService.getProfile(playerId));
+    }
+
+    @GetMapping("/{playerId}/history")
+    public ResponseEntity<APISuccessResponse<PlayerHistoryResponse>> getRecord(
+            @PathVariable Long playerId
+    ) {
+        return APISuccessResponse.of(HttpStatus.OK, playerService.getHistory(playerId));
     }
 }
