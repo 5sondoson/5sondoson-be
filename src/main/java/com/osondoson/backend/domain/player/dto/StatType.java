@@ -23,6 +23,21 @@ public enum StatType {
     SAVES("Saves", PlayerSeasonRecord::getStatSavesTotal),
     RATING("Rating", PlayerSeasonRecord::getStatRatingAverage),
 
+    // 선수 히스토리 관련 지표
+    GOALS_TOTAL("Goals", PlayerSeasonRecord::getStatGoalsGoals),
+    ASSISTS_TOTAL("Assists", PlayerSeasonRecord::getStatAssistsTotal),
+    SHOTS_ON_TARGET_TOTAL("SoT", PlayerSeasonRecord::getStatShotsOnTargetTotal),
+    KEY_PASSES_TOTAL("Key Passes", PlayerSeasonRecord::getStatKeyPassesTotal),
+    PASSES_TOTAL("Passes", PlayerSeasonRecord::getStatPassesTotal),
+    PASS_ACCURACY("Pass%", PlayerSeasonRecord::getStatAccuratePassesPercentageTotal),
+    TACKLES_TOTAL("Tackles", PlayerSeasonRecord::getStatTacklesTotal),
+    INTERCEPTIONS_TOTAL("Interceptions", PlayerSeasonRecord::getStatInterceptionsTotal),
+    CLEARANCES_TOTAL("Clearances", PlayerSeasonRecord::getStatClearancesTotal),
+    AERIALS_WON_TOTAL("Aerials Won", PlayerSeasonRecord::getStatAerielsWonTotal),
+    SAVES_TOTAL("Saves", PlayerSeasonRecord::getStatSavesTotal),
+    GOALS_CONCEDED_TOTAL("GA", PlayerSeasonRecord::getStatGoalsConcededTotal),
+    CLEAN_SHEETS("Clean Sheets", PlayerSeasonRecord::getStatCleansheetsTotal);
+
     ;
 
     private final String label;
@@ -38,6 +53,15 @@ public enum StatType {
             case MF -> List.of(RATING, PASSES_PER90, KEY_PASSES_PER90);
             case DF -> List.of(RATING, INTERCEPTIONS, AERIALS_WON_PER90);
             case GK -> List.of(RATING, GOALS_CONCEDED, SAVES);
+        };
+    }
+
+    public static List<StatType> recordStatsOf(Position position) {
+        return switch (position) {
+            case FW -> List.of(GOALS_TOTAL, ASSISTS_TOTAL, SHOTS_ON_TARGET_TOTAL, KEY_PASSES_TOTAL);
+            case MF -> List.of(ASSISTS_TOTAL, KEY_PASSES_TOTAL, PASSES_TOTAL, PASS_ACCURACY);
+            case DF -> List.of(TACKLES_TOTAL, INTERCEPTIONS_TOTAL, CLEARANCES_TOTAL, AERIALS_WON_TOTAL);
+            case GK -> List.of(SAVES_TOTAL, GOALS_CONCEDED_TOTAL, CLEAN_SHEETS);
         };
     }
 }
