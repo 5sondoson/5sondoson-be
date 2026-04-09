@@ -6,6 +6,7 @@ import com.osondoson.backend.domain.player.dto.PaginationInfo;
 import com.osondoson.backend.domain.player.dto.PlayerResult;
 import com.osondoson.backend.domain.player.dto.StatType;
 import com.osondoson.backend.domain.player.dto.request.PlayerSearchRequest;
+import com.osondoson.backend.domain.player.dto.response.PlayerHistoryResponse;
 import com.osondoson.backend.domain.player.dto.response.PlayerProfileResponse;
 import com.osondoson.backend.domain.player.dto.response.PlayerSearchResponse;
 import com.osondoson.backend.domain.player.entity.Player;
@@ -57,6 +58,18 @@ public class PlayerService {
                 .orElseThrow(() -> new OsondosonException(FailMessage.PLAYER_NOT_FOUND));
 
         return PlayerProfileResponse.of(player);
+    }
+
+    public PlayerHistoryResponse getHistory(Long playerId) {
+        Player player = playerRepository.findById(playerId)
+                .orElseThrow(() -> new OsondosonException(FailMessage.PLAYER_NOT_FOUND));
+
+        List<PlayerSeasonRecord> records = playerSeasonRecordRepository.findByPlayerOrderBySeasonStartYearAsc(player);
+        if (records.isEmpty()) {
+            throw new OsondosonException(FailMessage.STATS_NOT_FOUND);
+        }
+
+        return PlayerHistoryResponse.of(player, records);
     }
 
     private Map<Long, PlayerSeasonRecord> getLatestSeasonRecordMap(List<Player> players) {
