@@ -2,15 +2,13 @@ package com.osondoson.backend.domain.player.controller;
 
 import com.osondoson.backend.common.response.APISuccessResponse;
 import com.osondoson.backend.domain.player.dto.request.PlayerSearchRequest;
+import com.osondoson.backend.domain.player.dto.response.PlayerProfileResponse;
 import com.osondoson.backend.domain.player.dto.response.PlayerSearchResponse;
 import com.osondoson.backend.domain.player.service.PlayerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/players")
@@ -37,5 +35,12 @@ public class PlayerController {
                 isActive
         );
         return APISuccessResponse.of(HttpStatus.OK, playerService.search(request));
+    }
+
+    @GetMapping("/{playerId}")
+    public ResponseEntity<APISuccessResponse<PlayerProfileResponse>> getProfile(
+            @PathVariable Long playerId
+    ) {
+        return APISuccessResponse.of(HttpStatus.OK, playerService.getProfile(playerId));
     }
 }

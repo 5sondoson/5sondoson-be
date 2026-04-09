@@ -1,15 +1,18 @@
 package com.osondoson.backend.domain.player.service;
 
+import com.osondoson.backend.common.exception.OsondosonException;
 import com.osondoson.backend.domain.player.dto.KeyStat;
 import com.osondoson.backend.domain.player.dto.PaginationInfo;
 import com.osondoson.backend.domain.player.dto.PlayerResult;
 import com.osondoson.backend.domain.player.dto.StatType;
 import com.osondoson.backend.domain.player.dto.request.PlayerSearchRequest;
+import com.osondoson.backend.domain.player.dto.response.PlayerProfileResponse;
 import com.osondoson.backend.domain.player.dto.response.PlayerSearchResponse;
 import com.osondoson.backend.domain.player.entity.Player;
 import com.osondoson.backend.domain.player.entity.PlayerSeasonRecord;
 import com.osondoson.backend.domain.player.repository.PlayerRepository;
 import com.osondoson.backend.domain.player.repository.PlayerSeasonRecordRepository;
+import com.osondoson.backend.enums.message.FailMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -47,6 +50,13 @@ public class PlayerService {
         PaginationInfo paginationInfo = PaginationInfo.of(request.page(), request.size(), playersWithPage);
 
         return PlayerSearchResponse.of(paginationInfo, results);
+    }
+
+    public PlayerProfileResponse getProfile(Long playerId) {
+        Player player = playerRepository.findById(playerId)
+                .orElseThrow(() -> new OsondosonException(FailMessage.PLAYER_NOT_FOUND));
+
+        return PlayerProfileResponse.of(player);
     }
 
     private Map<Long, PlayerSeasonRecord> getLatestSeasonRecordMap(List<Player> players) {
