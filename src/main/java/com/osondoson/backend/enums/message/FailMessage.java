@@ -14,6 +14,8 @@ public enum FailMessage {
     BAD_REQUEST_MISSING_PARAM(HttpStatus.BAD_REQUEST, 40002, "필수 파라미터가 없습니다."),
     BAD_REQUEST_METHOD_ARGUMENT_TYPE(HttpStatus.BAD_REQUEST, 40003, "메서드 인자타입이 잘못되었습니다."),
     BAD_REQUEST_NOT_READABLE(HttpStatus.BAD_REQUEST, 40004, "Json 오류 혹은 요청본문 필드 오류 입니다. "),
+    INVALID_LEAGUE(HttpStatus.BAD_REQUEST, 40006, "리그 값이 올바르지 않습니다. 허용 값: eredivisie, primeira_liga, pro_league"),
+    INVALID_POSITION(HttpStatus.BAD_REQUEST, 40007, "포지션 값이 올바르지 않습니다. 허용 값: FW, MF, DF, GK"),
 
     //401
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, 40100, "인증이 필요합니다."),
