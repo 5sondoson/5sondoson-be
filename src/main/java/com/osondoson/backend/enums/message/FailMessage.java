@@ -26,6 +26,7 @@ public enum FailMessage {
     //404
     NOT_FOUND(HttpStatus.NOT_FOUND, 40400, "리소스를 찾을 수 없습니다."),
     NOT_FOUND_API(HttpStatus.NOT_FOUND, 40401, "잘못된 API입니다."),
+    PLAYER_NOT_FOUND(HttpStatus.NOT_FOUND, 40402, "해당 선수를 찾을 수 없습니다."),
 
     //405
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, 40500, "잘못된 HTTP 메소드 요청입니다."),
