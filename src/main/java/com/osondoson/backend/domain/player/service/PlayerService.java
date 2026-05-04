@@ -1,18 +1,20 @@
 package com.osondoson.backend.domain.player.service;
 
 import com.osondoson.backend.common.exception.OsondosonException;
-import com.osondoson.backend.domain.player.dto.KeyStat;
-import com.osondoson.backend.domain.player.dto.PaginationInfo;
-import com.osondoson.backend.domain.player.dto.PlayerResult;
-import com.osondoson.backend.domain.player.dto.StatType;
-import com.osondoson.backend.domain.player.dto.request.PlayerSearchRequest;
+import com.osondoson.backend.domain.player.dto.*;
+import com.osondoson.backend.domain.player.dto.response.FeaturedPlayersResponse;
 import com.osondoson.backend.domain.player.dto.response.PlayerHistoryResponse;
 import com.osondoson.backend.domain.player.dto.response.PlayerProfileResponse;
 import com.osondoson.backend.domain.player.dto.response.PlayerSearchResponse;
 import com.osondoson.backend.domain.player.entity.Player;
+import com.osondoson.backend.domain.player.entity.PlayerPerformancePrediction;
 import com.osondoson.backend.domain.player.entity.PlayerSeasonRecord;
+import com.osondoson.backend.domain.player.entity.PlayerValuePrediction;
+import com.osondoson.backend.domain.player.repository.PlayerPerformancePredictionRepository;
 import com.osondoson.backend.domain.player.repository.PlayerRepository;
 import com.osondoson.backend.domain.player.repository.PlayerSeasonRecordRepository;
+import com.osondoson.backend.domain.player.repository.PlayerValuePredictionRepository;
+import com.osondoson.backend.enums.league.League;
 import com.osondoson.backend.enums.message.FailMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,6 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,14 +35,23 @@ public class PlayerService {
 
     private final PlayerRepository playerRepository;
     private final PlayerSeasonRecordRepository playerSeasonRecordRepository;
+    private final PlayerValuePredictionRepository playerValuePredictionRepository;
+    private final PlayerPerformancePredictionRepository playerPerformancePredictionRepository;
 
-    public PlayerSearchResponse search(PlayerSearchRequest request) {
+    public PlayerSearchResponse search(
+            String keyword,
+            String league,
+            String position,
+            int page,
+            int size,
+            Boolean isActive
+    ) {
         Page<Player> playersWithPage = playerRepository.searchPlayers(
-                request.keyword(),
-                request.league(),
-                request.position(),
-                request.isActive(),
-                PageRequest.of(request.page() - 1, request.size())
+                keyword,
+                league,
+                position,
+                isActive,
+                PageRequest.of(page - 1, size)
         );
 
         List<Player> players = playersWithPage.getContent();
@@ -48,7 +61,7 @@ public class PlayerService {
                 .map(player -> mapToPlayerResult(player, latestSeasonRecordMap))
                 .toList();
 
-        PaginationInfo paginationInfo = PaginationInfo.of(request.page(), request.size(), playersWithPage);
+        PaginationInfo paginationInfo = PaginationInfo.of(page, size, playersWithPage);
 
         return PlayerSearchResponse.of(paginationInfo, results);
     }
@@ -70,6 +83,22 @@ public class PlayerService {
         }
 
         return PlayerHistoryResponse.of(player, records);
+    }
+
+    public FeaturedPlayersResponse getFeaturedPlayers(int size, League destinationLeague) {
+        List<PlayerPerformancePrediction> playerPerformancePredictions = resolveTopPredictions(size, destinationLeague);
+
+        if (playerPerformancePredictions.isEmpty()) {
+            return FeaturedPlayersResponse.empty();
+        }
+
+        Map<Long, PlayerValuePrediction> valuePredictionMap = getValuePredictionMap(playerPerformancePredictions);
+
+        List<FeaturedPlayerResult> results = playerPerformancePredictions.stream()
+                .map(prediction -> FeaturedPlayerResult.of(prediction, valuePredictionMap.get(prediction.getId())))
+                .toList();
+
+        return FeaturedPlayersResponse.of(results);
     }
 
     private Map<Long, PlayerSeasonRecord> getLatestSeasonRecordMap(List<Player> players) {
@@ -104,5 +133,29 @@ public class PlayerService {
         );
 
         return PlayerResult.of(player, keyStats);
+    }
+
+    private List<PlayerPerformancePrediction> resolveTopPredictions(int size, League destinationLeague) {
+        PageRequest pageRequest = PageRequest.of(0, size);
+
+        if (destinationLeague == null) {
+            return playerPerformancePredictionRepository.findTopFeatured(pageRequest);
+        }
+        return playerPerformancePredictionRepository.findTopByDestinationLeague(destinationLeague, pageRequest);
+    }
+
+    private Map<Long, PlayerValuePrediction> getValuePredictionMap(
+            List<PlayerPerformancePrediction> performancePredictions
+    ) {
+        List<Long> predictionIds = performancePredictions.stream()
+                .map(PlayerPerformancePrediction::getId)
+                .toList();
+
+        return playerValuePredictionRepository.findByPlayerPerformancePredictionIdIn(predictionIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        valuePrediction -> valuePrediction.getPlayerPerformancePrediction().getId(),
+                        Function.identity()
+                ));
     }
 }
