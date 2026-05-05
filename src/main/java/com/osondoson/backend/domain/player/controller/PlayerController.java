@@ -1,7 +1,9 @@
 package com.osondoson.backend.domain.player.controller;
 
 import com.osondoson.backend.common.response.APISuccessResponse;
+import com.osondoson.backend.domain.player.dto.request.FeaturedPlayersRequest;
 import com.osondoson.backend.domain.player.dto.request.PlayerSearchRequest;
+import com.osondoson.backend.domain.player.dto.response.FeaturedPlayersResponse;
 import com.osondoson.backend.domain.player.dto.response.PlayerHistoryResponse;
 import com.osondoson.backend.domain.player.dto.response.PlayerProfileResponse;
 import com.osondoson.backend.domain.player.dto.response.PlayerSearchResponse;
@@ -20,22 +22,19 @@ public class PlayerController {
 
     @GetMapping("/search")
     public ResponseEntity<APISuccessResponse<PlayerSearchResponse>> search(
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) String league,
-            @RequestParam(required = false) String position,
-            @RequestParam(required = false) int page,
-            @RequestParam(required = false) int size,
-            @RequestParam(required = false) Boolean isActive
+            @ModelAttribute PlayerSearchRequest playerSearchRequest
     ) {
-        PlayerSearchRequest request = new PlayerSearchRequest(
-                keyword,
-                league,
-                position,
-                page,
-                size,
-                isActive
+        return APISuccessResponse.of(
+                HttpStatus.OK,
+                playerService.search(
+                        playerSearchRequest.keyword(),
+                        playerSearchRequest.league(),
+                        playerSearchRequest.position(),
+                        playerSearchRequest.page(),
+                        playerSearchRequest.size(),
+                        playerSearchRequest.isActive()
+                )
         );
-        return APISuccessResponse.of(HttpStatus.OK, playerService.search(request));
     }
 
     @GetMapping("/{playerId}")
@@ -50,5 +49,18 @@ public class PlayerController {
             @PathVariable Long playerId
     ) {
         return APISuccessResponse.of(HttpStatus.OK, playerService.getHistory(playerId));
+    }
+
+    @GetMapping("/featured")
+    public ResponseEntity<APISuccessResponse<FeaturedPlayersResponse>> getFeaturedPlayers(
+            @ModelAttribute FeaturedPlayersRequest featuredPlayersRequest
+    ) {
+        return APISuccessResponse.of(
+                HttpStatus.OK,
+                playerService.getFeaturedPlayers(
+                        featuredPlayersRequest.normalizedSize(),
+                        featuredPlayersRequest.destinationLeagueAsEnum()
+                )
+        );
     }
 }

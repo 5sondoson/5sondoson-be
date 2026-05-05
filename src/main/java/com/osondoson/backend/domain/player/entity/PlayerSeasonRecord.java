@@ -318,4 +318,16 @@ public class PlayerSeasonRecord extends BaseEntity {
     @Column(name = "stat_clearances_total_per90")
     private Double statClearancesTotalPer90;
 
+    @Column(name = "stat_goals_total_per90_lag1")
+    private Double statGoalsTotalPer90Lag1;
+
+    @Column(name = "stat_shots_total_total_per90_lag1")
+    private Double statShotsTotalTotalPer90Lag1;
+
+    @Column(name = "stat_clearances_total_lag1")
+    private Double statClearancesTotalLag1;
+
+    @Column(name = "stat_goals_total_per90_rolling_mean_3")
+    private Double statGoalsTotalPer90RollingMean3;
+
 }
