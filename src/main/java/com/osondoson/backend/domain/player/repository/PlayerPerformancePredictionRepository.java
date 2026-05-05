@@ -27,11 +27,13 @@ public interface PlayerPerformancePredictionRepository extends JpaRepository<Pla
             SELECT ppp FROM PlayerPerformancePrediction ppp
             JOIN FETCH ppp.player p
             LEFT JOIN FETCH p.team
-            WHERE ppp.adaptScoreTotal = (
-                SELECT MAX(ppp2.adaptScoreTotal) FROM PlayerPerformancePrediction ppp2
+            WHERE NOT EXISTS (
+                SELECT 1 FROM PlayerPerformancePrediction ppp2
                 WHERE ppp2.player = ppp.player
+                AND (ppp2.adaptScoreTotal > ppp.adaptScoreTotal
+                     OR (ppp2.adaptScoreTotal = ppp.adaptScoreTotal AND ppp2.id < ppp.id))
             )
-            ORDER BY ppp.adaptScoreTotal DESC
+            ORDER BY ppp.adaptScoreTotal DESC, ppp.id ASC
             """)
     List<PlayerPerformancePrediction> findTopFeatured(Pageable pageable);
 }
