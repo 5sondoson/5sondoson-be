@@ -31,10 +31,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<APIErrorResponse> handleOsondosonException(final OsondosonException exception) {
 
         final FailMessage failMessage = exception.getFailMessage();
-        final int failCode = failMessage.getCode();
-        final String failMessageMessage = failMessage.getMessage();
 
-        return APIErrorResponse.of(failMessage.getHttpStatus(), failCode, failMessageMessage);
+        return APIErrorResponse.of(failMessage.getHttpStatus(), failMessage.name(), failMessage.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -44,9 +42,8 @@ public class GlobalExceptionHandler {
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.joining("\n"));
         final FailMessage failMessage = FailMessage.BAD_REQUEST_REQUEST_BODY_VALID;
-        final int failCode = failMessage.getCode();
 
-        return APIErrorResponse.of(failMessage.getHttpStatus(), failCode, customMessage);
+        return APIErrorResponse.of(failMessage.getHttpStatus(), failMessage.name(), customMessage);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
@@ -54,9 +51,8 @@ public class GlobalExceptionHandler {
 
         final String customMessage = "누락된 파라미터 : " + exception.getParameterName();
         final FailMessage failMessage = FailMessage.BAD_REQUEST_MISSING_PARAM;
-        final int failCode = failMessage.getCode();
 
-        return APIErrorResponse.of(failMessage.getHttpStatus(), failCode, customMessage);
+        return APIErrorResponse.of(failMessage.getHttpStatus(), failMessage.name(), customMessage);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
@@ -64,16 +60,14 @@ public class GlobalExceptionHandler {
 
         final String customMessage = "잘못된 인자 값 : " + exception.getParameter().getParameterName();
         final FailMessage failMessage = FailMessage.BAD_REQUEST_METHOD_ARGUMENT_TYPE;
-        final int failCode = failMessage.getCode();
 
-        return APIErrorResponse.of(failMessage.getHttpStatus(), failCode, customMessage);
+        return APIErrorResponse.of(failMessage.getHttpStatus(), failMessage.name(), customMessage);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<APIErrorResponse> handleHttpMessageNotReadableException(final HttpMessageNotReadableException exception) {
 
         final FailMessage failMessage = FailMessage.BAD_REQUEST_NOT_READABLE;
-        final int failCode = failMessage.getCode();
 
         if (exception.getCause() instanceof JsonMappingException jsonMappingException) {
 
@@ -81,13 +75,11 @@ public class GlobalExceptionHandler {
                     .map(ref -> String.format("잘못된 필드 값 : '%s'", ref.getFieldName()))
                     .collect(Collectors.joining("\n"));
 
-            return APIErrorResponse.of(failMessage.getHttpStatus(), failCode, customMessage);
+            return APIErrorResponse.of(failMessage.getHttpStatus(), failMessage.name(), customMessage);
 
         } else {
 
-            final String failMessageMessage = failMessage.getMessage();
-
-            return APIErrorResponse.of(failMessage.getHttpStatus(), failCode, failMessageMessage);
+            return APIErrorResponse.of(failMessage.getHttpStatus(), failMessage.name(), failMessage.getMessage());
         }
     }
 
@@ -95,47 +87,38 @@ public class GlobalExceptionHandler {
     public ResponseEntity<APIErrorResponse> handleNoResourceFoundException(final NoResourceFoundException exception) {
 
         final FailMessage failMessage = FailMessage.NOT_FOUND_API;
-        final int failCode = failMessage.getCode();
-        final String failMessageMessage = exception.getMessage();
 
-        return APIErrorResponse.of(failMessage.getHttpStatus(), failCode, failMessageMessage);
+        return APIErrorResponse.of(failMessage.getHttpStatus(), failMessage.name(), exception.getMessage());
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<APIErrorResponse> handleNoHandlerFoundException(final NoHandlerFoundException exception) {
 
         final FailMessage failMessage = FailMessage.NOT_FOUND_API;
-        final int failCode = failMessage.getCode();
-        final String failMessageMessage = exception.getMessage();
 
-        return APIErrorResponse.of(failMessage.getHttpStatus(), failCode, failMessageMessage);
+        return APIErrorResponse.of(failMessage.getHttpStatus(), failMessage.name(), exception.getMessage());
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<APIErrorResponse> handleHttpRequestMethodNotSupportedException(final HttpRequestMethodNotSupportedException exception) {
 
         final FailMessage failMessage = FailMessage.METHOD_NOT_ALLOWED;
-        final int failCode = failMessage.getCode();
-        final String failMessageMessage = exception.getMessage();
 
-        return APIErrorResponse.of(failMessage.getHttpStatus(), failCode, failMessageMessage);
+        return APIErrorResponse.of(failMessage.getHttpStatus(), failMessage.name(), exception.getMessage());
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<APIErrorResponse> handleDataIntegrityViolationException(final DataIntegrityViolationException exception) {
 
         final FailMessage failMessage = FailMessage.CONFLICT_INTEGRITY;
-        final int failCode = failMessage.getCode();
 
         if (exception.getCause() instanceof ConstraintViolationException constraintViolationException) {
             final String constraintName = constraintViolationException.getConstraintViolations().toString();
             final String customMessage = String.format("제약 조건 '%s' 위반이 발생했습니다.", constraintName);
 
-            return APIErrorResponse.of(failMessage.getHttpStatus(), failCode, customMessage);
+            return APIErrorResponse.of(failMessage.getHttpStatus(), failMessage.name(), customMessage);
         } else {
-            final String failMessageMessage = failMessage.getMessage();
-
-            return APIErrorResponse.of(failMessage.getHttpStatus(), failCode, failMessageMessage);
+            return APIErrorResponse.of(failMessage.getHttpStatus(), failMessage.name(), failMessage.getMessage());
         }
     }
 
@@ -143,9 +126,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<APIErrorResponse> handleGeneralException(final Exception exception) {
 
         final FailMessage failMessage = FailMessage.INTERNAL_SERVER_ERROR;
-        final int failCode = failMessage.getCode();
-        final String failMessageMessage = exception.getMessage();
 
-        return APIErrorResponse.of(failMessage.getHttpStatus(), failCode, failMessageMessage);
+        return APIErrorResponse.of(failMessage.getHttpStatus(), failMessage.name(), exception.getMessage());
     }
 }
