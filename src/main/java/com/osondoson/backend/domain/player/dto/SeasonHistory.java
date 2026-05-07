@@ -12,8 +12,8 @@ public record SeasonHistory(
         String club,
         String league,
         String clubLogoUrl,
-        Double appearances,
-        Double minutes,
+        Integer appearances,
+        Integer minutes,
         Double ratingAverage,
         List<KeyStat> keyStats
 ) {
