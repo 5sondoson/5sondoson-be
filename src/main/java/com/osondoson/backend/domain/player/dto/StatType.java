@@ -12,33 +12,21 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public enum StatType {
 
-    // 선수 검색 정보 관련 지표
-    GOALS_PER90("Goals/90", PlayerSeasonRecord::getStatGoalsTotalPer90),
-    SHOTS_ON_TARGET("SoT/90", PlayerSeasonRecord::getStatShotsOnTargetTotal),
-    PASSES_PER90("Passes/90", PlayerSeasonRecord::getStatPassesTotalPer90),
-    KEY_PASSES_PER90("KP/90", PlayerSeasonRecord::getStatKeyPassesTotalPer90),
-    INTERCEPTIONS("Interceptions", PlayerSeasonRecord::getStatInterceptionsTotal),
-    AERIALS_WON_PER90("Aerials/90", PlayerSeasonRecord::getStatAerielsWonTotalPer90),
-    GOALS_CONCEDED("GA", PlayerSeasonRecord::getStatGoalsConcededTotal),
-    SAVES("Saves", PlayerSeasonRecord::getStatSavesTotal),
     RATING("Rating", PlayerSeasonRecord::getStatRatingAverage),
-
-    // 선수 히스토리 관련 지표
-    GOALS_TOTAL("Goals", PlayerSeasonRecord::getStatGoalsGoals),
-    ASSISTS_TOTAL("Assists", PlayerSeasonRecord::getStatAssistsTotal),
-    SHOTS_ON_TARGET_TOTAL("SoT", PlayerSeasonRecord::getStatShotsOnTargetTotal),
-    KEY_PASSES_TOTAL("Key Passes", PlayerSeasonRecord::getStatKeyPassesTotal),
-    PASSES_TOTAL("Passes", PlayerSeasonRecord::getStatPassesTotal),
-    PASS_ACCURACY("Pass%", PlayerSeasonRecord::getStatAccuratePassesPercentageTotal),
-    TACKLES_TOTAL("Tackles", PlayerSeasonRecord::getStatTacklesTotal),
-    INTERCEPTIONS_TOTAL("Interceptions", PlayerSeasonRecord::getStatInterceptionsTotal),
-    CLEARANCES_TOTAL("Clearances", PlayerSeasonRecord::getStatClearancesTotal),
-    AERIALS_WON_TOTAL("Aerials Won", PlayerSeasonRecord::getStatAerielsWonTotal),
-    SAVES_TOTAL("Saves", PlayerSeasonRecord::getStatSavesTotal),
-    GOALS_CONCEDED_TOTAL("GA", PlayerSeasonRecord::getStatGoalsConcededTotal),
-    CLEAN_SHEETS("Clean Sheets", PlayerSeasonRecord::getStatCleansheetsTotal);
-
-    ;
+    GOALS_PER90("Goals/90", PlayerSeasonRecord::getStatGoalsTotalPer90),
+    SHOTS_ON_TARGET_PER90("ShotsOnTarget/90", PlayerSeasonRecord::getStatShotsOnTargetTotal),
+    SHOTS_PER90("Shots/90", PlayerSeasonRecord::getStatShotsTotalTotalPer90),
+    SUCCESSFUL_DRIBBLES_PER90("SuccessfulDribbles/90", PlayerSeasonRecord::getStatSuccessfulDribblesTotalPer90),
+    PASSES_PER90("Passes/90", PlayerSeasonRecord::getStatPassesTotalPer90),
+    KEY_PASSES_PER90("KeyPass/90", PlayerSeasonRecord::getStatKeyPassesTotalPer90),
+    TACKLES_PER90("Tackles/90", PlayerSeasonRecord::getStatTacklesTotalPer90),
+    INTERCEPTIONS("Interceptions", PlayerSeasonRecord::getStatInterceptionsTotal),
+    AERIALS_WON_PER90("AerialsWon/90", PlayerSeasonRecord::getStatAerielsWonTotalPer90),
+    BLOCKS_PER90("Blocks/90", PlayerSeasonRecord::getStatBlockedShotsTotalPer90),
+    GOALS_CONCEDED("GoalsConceded", PlayerSeasonRecord::getStatGoalsConcededTotal),
+    SAVES("Saves", PlayerSeasonRecord::getStatSavesTotal),
+    PASS_ACCURACY("PassAccuracy", PlayerSeasonRecord::getStatAccuratePassesPercentageTotal),
+    CLEAN_SHEETS("CleanSheets", PlayerSeasonRecord::getStatCleansheetsTotal);
 
     private final String label;
     private final Function<PlayerSeasonRecord, Double> extractor;
@@ -49,7 +37,7 @@ public enum StatType {
 
     public static List<StatType> searchStatsOf(Position position) {
         return switch (position) {
-            case FW -> List.of(RATING, GOALS_PER90, SHOTS_ON_TARGET);
+            case FW -> List.of(RATING, GOALS_PER90, SHOTS_ON_TARGET_PER90);
             case MF -> List.of(RATING, PASSES_PER90, KEY_PASSES_PER90);
             case DF -> List.of(RATING, INTERCEPTIONS, AERIALS_WON_PER90);
             case GK -> List.of(RATING, GOALS_CONCEDED, SAVES);
@@ -58,10 +46,10 @@ public enum StatType {
 
     public static List<StatType> recordStatsOf(Position position) {
         return switch (position) {
-            case FW -> List.of(GOALS_TOTAL, ASSISTS_TOTAL, SHOTS_ON_TARGET_TOTAL, KEY_PASSES_TOTAL);
-            case MF -> List.of(ASSISTS_TOTAL, KEY_PASSES_TOTAL, PASSES_TOTAL, PASS_ACCURACY);
-            case DF -> List.of(TACKLES_TOTAL, INTERCEPTIONS_TOTAL, CLEARANCES_TOTAL, AERIALS_WON_TOTAL);
-            case GK -> List.of(SAVES_TOTAL, GOALS_CONCEDED_TOTAL, CLEAN_SHEETS);
+            case FW -> List.of(GOALS_PER90, SHOTS_PER90, SUCCESSFUL_DRIBBLES_PER90);
+            case MF -> List.of(KEY_PASSES_PER90, PASSES_PER90, TACKLES_PER90);
+            case DF -> List.of(AERIALS_WON_PER90, BLOCKS_PER90);
+            case GK -> List.of(PASS_ACCURACY, CLEAN_SHEETS);
         };
     }
 }

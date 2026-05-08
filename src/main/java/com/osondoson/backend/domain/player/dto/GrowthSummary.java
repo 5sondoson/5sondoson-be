@@ -5,7 +5,7 @@ import com.osondoson.backend.domain.player.entity.PlayerSeasonRecord;
 import java.util.List;
 
 public record GrowthSummary(
-        TotalMarketValueGrowth totalMarketValueGrowth,
+        TotalMarketValueGrowth totalMvGrowth,
         PeakSeason peakSeason,
         CurrentTrend currentTrend
 ) {

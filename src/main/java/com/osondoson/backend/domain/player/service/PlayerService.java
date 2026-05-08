@@ -79,7 +79,7 @@ public class PlayerService {
 
         List<PlayerSeasonRecord> records = playerSeasonRecordRepository.findByPlayerOrderBySeasonStartYearAsc(player);
         if (records.isEmpty()) {
-            throw new OsondosonException(FailMessage.STATS_NOT_FOUND);
+            throw new OsondosonException(FailMessage.STATS_UNAVAILABLE);
         }
 
         return PlayerHistoryResponse.of(player, records);

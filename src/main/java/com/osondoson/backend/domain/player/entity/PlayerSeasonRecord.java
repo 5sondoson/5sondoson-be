@@ -54,10 +54,10 @@ public class PlayerSeasonRecord extends BaseEntity {
 
     // === 선수 스탯 ===
     @Column(name = "stat_appearances_total")
-    private Double statAppearancesTotal;
+    private Integer statAppearancesTotal;
 
     @Column(name = "stat_minutes_played_total")
-    private Double statMinutesPlayedTotal;
+    private Integer statMinutesPlayedTotal;
 
     @Column(name = "stat_goals_total")
     private Double statGoalsTotal;

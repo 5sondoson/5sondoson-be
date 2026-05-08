@@ -7,7 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public record PeakSeason(
-        String season,
+        String value,
         Long marketValue
 ) {
 
