@@ -62,6 +62,7 @@ jobs:
           key: ${{ secrets.SERVER_KEY }}
           script: |
             mkdir -p ~/app
+            mkdir -p ~/app/logs
             cd ~/app
 
             echo "기존 애플리케이션 종료"
@@ -69,28 +70,40 @@ jobs:
               PID=$(cat app.pid)
               if ps -p "$PID" > /dev/null 2>&1; then
                 kill "$PID" || true
-                sleep 3
+                sleep 5
               fi
               rm -f app.pid
             fi
 
             echo "남아있는 server.jar 프로세스 정리"
-            OLD_PID=$(pgrep -f "java.*server.jar" || true)
-            if [ -n "$OLD_PID" ]; then
-              kill -9 $OLD_PID || true
+            OLD_PIDS=$(ps -eo pid=,comm=,args= | awk '$2 == "java" && $0 ~ /server.jar/ {print $1}')
+
+            if [ -n "$OLD_PIDS" ]; then
+              for PID in $OLD_PIDS; do
+                echo "Kill old process: $PID"
+                kill "$PID" || true
+              done
+              sleep 5
             fi
 
             echo "새 애플리케이션 실행"
-            nohup java -jar server.jar \
-              > spring-boot-application.log \
-              2> spring-boot-application-error.log &
+            nohup java -jar /home/ubuntu/app/server.jar \
+              > /home/ubuntu/app/logs/spring-boot-application.log \
+              2> /home/ubuntu/app/logs/spring-boot-application-error.log &
 
-            echo $! > app.pid
+            echo $! > /home/ubuntu/app/app.pid
 
-            sleep 5
+            sleep 10
 
             echo "실행 중인 프로세스 확인"
-            ps -ef | grep server.jar | grep -v grep
+            if ps -p $(cat /home/ubuntu/app/app.pid) > /dev/null 2>&1; then
+              echo "Application started successfully."
+            else
+              echo "Application failed to start."
+              echo "에러 로그:"
+              tail -n 100 /home/ubuntu/app/logs/spring-boot-application-error.log || true
+              exit 1
+            fi
 
             echo "최근 로그"
-            tail -n 50 spring-boot-application.log || true
+            tail -n 50 /home/ubuntu/app/logs/spring-boot-application.log || true
