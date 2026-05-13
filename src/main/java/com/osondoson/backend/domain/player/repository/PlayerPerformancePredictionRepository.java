@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PlayerPerformancePredictionRepository extends JpaRepository<PlayerPerformancePrediction, Long> {
 
@@ -21,6 +22,17 @@ public interface PlayerPerformancePredictionRepository extends JpaRepository<Pla
     List<PlayerPerformancePrediction> findTopByDestinationLeague(
             League league,
             Pageable pageable
+    );
+
+    @Query("""
+            SELECT ppp FROM PlayerPerformancePrediction ppp
+            JOIN FETCH ppp.player p
+            LEFT JOIN FETCH p.team
+            WHERE ppp.player.id = :playerId AND ppp.destinationLeague = :league
+            """)
+    Optional<PlayerPerformancePrediction> findByPlayerIdAndDestinationLeague(
+            @Param("playerId") Long playerId,
+            @Param("league") League league
     );
 
     @Query("""

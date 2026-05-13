@@ -5,10 +5,13 @@ import com.osondoson.backend.domain.player.entity.PlayerSeasonRecord;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PlayerSeasonRecordRepository extends JpaRepository<PlayerSeasonRecord, Long> {
 
     List<PlayerSeasonRecord> findByPlayerInOrderBySeasonStartYearDescIdDesc(List<Player> players);
 
     List<PlayerSeasonRecord> findByPlayerOrderBySeasonStartYearAsc(Player player);
+
+    Optional<PlayerSeasonRecord> findFirstByPlayerOrderBySeasonStartYearDescIdDesc(Player player);
 }

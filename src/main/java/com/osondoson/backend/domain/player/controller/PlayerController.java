@@ -5,6 +5,7 @@ import com.osondoson.backend.domain.player.dto.request.FeaturedPlayersRequest;
 import com.osondoson.backend.domain.player.dto.request.PlayerSearchRequest;
 import com.osondoson.backend.domain.player.dto.response.FeaturedPlayersResponse;
 import com.osondoson.backend.domain.player.dto.response.PlayerHistoryResponse;
+import com.osondoson.backend.domain.player.dto.response.PlayerPredictResponse;
 import com.osondoson.backend.domain.player.dto.response.PlayerProfileResponse;
 import com.osondoson.backend.domain.player.dto.response.PlayerSearchResponse;
 import com.osondoson.backend.domain.player.service.PlayerService;
@@ -49,6 +50,14 @@ public class PlayerController {
             @PathVariable Long playerId
     ) {
         return APISuccessResponse.of(HttpStatus.OK, playerService.getHistory(playerId));
+    }
+
+    @GetMapping("/{playerId}/predict/{league}")
+    public ResponseEntity<APISuccessResponse<PlayerPredictResponse>> getPredict(
+            @PathVariable Long playerId,
+            @PathVariable String league
+    ) {
+        return APISuccessResponse.of(HttpStatus.OK, playerService.getPredict(playerId, league));
     }
 
     @GetMapping("/featured")
