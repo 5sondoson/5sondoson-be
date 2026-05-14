@@ -18,11 +18,11 @@ public enum League {
     PRO_LEAGUE("pro_league", "Pro League", "Belgium", true),
 
     //5대리그
-    PREMIER_LEAGUE("premier_league", "Premier League", "England", false),
-    LA_LIGA("la_liga", "La Liga", "Spain", false),
-    BUNDESLIGA("bundesliga", "Bundesliga", "Germany", false),
-    SERIE_A("serie_a", "Serie A", "Italy", false),
-    LIGUE_1("ligue_1", "Ligue 1", "France", false);
+    PREMIER_LEAGUE("EPL", "Premier League", "England", false),
+    LA_LIGA("LA", "La Liga", "Spain", false),
+    BUNDESLIGA("BL", "Bundesliga", "Germany", false),
+    SERIE_A("SA", "Serie A", "Italy", false),
+    LIGUE_1("L1", "Ligue 1", "France", false);
 
     private final String value;
     private final String displayName;

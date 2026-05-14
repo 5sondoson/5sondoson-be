@@ -1,19 +1,27 @@
 package com.osondoson.backend.domain.player.service;
 
 import com.osondoson.backend.common.exception.OsondosonException;
-import com.osondoson.backend.domain.player.dto.*;
+import com.osondoson.backend.domain.player.dto.FeaturedPlayerResult;
+import com.osondoson.backend.domain.player.dto.KeyStat;
+import com.osondoson.backend.domain.player.dto.PaginationInfo;
+import com.osondoson.backend.domain.player.dto.PlayerResult;
+import com.osondoson.backend.domain.player.dto.RecordStatType;
 import com.osondoson.backend.domain.player.dto.response.FeaturedPlayersResponse;
 import com.osondoson.backend.domain.player.dto.response.PlayerHistoryResponse;
+import com.osondoson.backend.domain.player.dto.response.PlayerPredictResponse;
 import com.osondoson.backend.domain.player.dto.response.PlayerProfileResponse;
 import com.osondoson.backend.domain.player.dto.response.PlayerSearchResponse;
 import com.osondoson.backend.domain.player.entity.Player;
 import com.osondoson.backend.domain.player.entity.PlayerPerformancePrediction;
 import com.osondoson.backend.domain.player.entity.PlayerSeasonRecord;
 import com.osondoson.backend.domain.player.entity.PlayerValuePrediction;
+import com.osondoson.backend.domain.player.entity.SimilarPlayer;
+import com.osondoson.backend.domain.player.mapper.PlayerPredictMapper;
 import com.osondoson.backend.domain.player.repository.PlayerPerformancePredictionRepository;
 import com.osondoson.backend.domain.player.repository.PlayerRepository;
 import com.osondoson.backend.domain.player.repository.PlayerSeasonRecordRepository;
 import com.osondoson.backend.domain.player.repository.PlayerValuePredictionRepository;
+import com.osondoson.backend.domain.player.repository.SimilarPlayerRepository;
 import com.osondoson.backend.enums.league.League;
 import com.osondoson.backend.enums.message.FailMessage;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +45,8 @@ public class PlayerService {
     private final PlayerSeasonRecordRepository playerSeasonRecordRepository;
     private final PlayerValuePredictionRepository playerValuePredictionRepository;
     private final PlayerPerformancePredictionRepository playerPerformancePredictionRepository;
+    private final SimilarPlayerRepository similarPlayerRepository;
+    private final PlayerPredictMapper playerPredictMapper;
 
     public PlayerSearchResponse search(
             String keyword,
@@ -85,6 +95,46 @@ public class PlayerService {
         return PlayerHistoryResponse.of(player, records);
     }
 
+    public PlayerPredictResponse getPredict(Long playerId, String leagueParam) {
+        League league = League.fromValue(leagueParam)
+                .orElseThrow(() -> new OsondosonException(FailMessage.INVALID_LEAGUE));
+
+        Player player = playerRepository.findById(playerId)
+                .orElseThrow(() -> new OsondosonException(FailMessage.PLAYER_NOT_FOUND));
+
+        PlayerSeasonRecord latestRecord = playerSeasonRecordRepository
+                .findFirstByPlayerOrderBySeasonStartYearDescIdDesc(player)
+                .orElseThrow(() -> new OsondosonException(FailMessage.INSUFFICIENT_STATS_DATA));
+
+        PlayerPerformancePrediction performancePrediction = playerPerformancePredictionRepository
+                .findByPlayerIdAndDestinationLeague(playerId, league)
+                .orElse(null);
+
+        PlayerValuePrediction valuePrediction = null;
+        List<SimilarPlayer> similarPlayers = List.of();
+
+        if (performancePrediction != null) {
+            valuePrediction = playerValuePredictionRepository
+                    .findByPlayerPerformancePredictionId(performancePrediction.getId())
+                    .orElse(null);
+            similarPlayers = similarPlayerRepository.findByPredictionIdOrderBySimilarityRankAsc(performancePrediction.getId());
+        }
+
+        Map<Long, Player> similarPlayerMap = resolveSimilarPlayerMap(similarPlayers);
+        Map<Long, PlayerSeasonRecord> similarPlayerRecordMap = getLatestSeasonRecordMap(List.copyOf(similarPlayerMap.values()));
+
+        return playerPredictMapper.toResponse(
+                player.getPosition(),
+                latestRecord,
+                player.getCurrentMarketValue(),
+                performancePrediction,
+                valuePrediction,
+                similarPlayers,
+                similarPlayerMap,
+                similarPlayerRecordMap
+        );
+    }
+
     public FeaturedPlayersResponse getFeaturedPlayers(int size, League destinationLeague) {
         List<PlayerPerformancePrediction> playerPerformancePredictions = resolveTopPredictions(size, destinationLeague);
 
@@ -128,11 +178,18 @@ public class PlayerService {
         List<KeyStat> keyStats = player.getPosition() == null
                 ? List.of()
                 : KeyStat.listOf(
-                StatType.searchStatsOf(player.getPosition()),
+                RecordStatType.searchStatsOf(player.getPosition()),
                 latestSeasonRecord
         );
 
         return PlayerResult.of(player, keyStats);
+    }
+
+    private Map<Long, Player> resolveSimilarPlayerMap(List<SimilarPlayer> similarPlayers) {
+        if (similarPlayers.isEmpty()) return Map.of();
+        List<Long> ids = similarPlayers.stream().map(SimilarPlayer::getSimilarPlayerId).toList();
+        return playerRepository.findAllById(ids).stream()
+                .collect(Collectors.toMap(Player::getId, Function.identity()));
     }
 
     private List<PlayerPerformancePrediction> resolveTopPredictions(int size, League destinationLeague) {

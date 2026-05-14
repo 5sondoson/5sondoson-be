@@ -42,18 +42,6 @@ public class PlayerPerformancePrediction {
     @Column(name = "adapt_score_consistency")
     private Integer adaptScoreConsistency;
 
-    @Column(name = "mv_low")
-    private Long mvLow;
-
-    @Column(name = "mv_high")
-    private Long mvHigh;
-
-    @Column(name = "minutes_low")
-    private Integer minutesLow;
-
-    @Column(name = "minutes_high")
-    private Integer minutesHigh;
-
     @Column(name = "pred_goals_total_per90")
     private Float predGoalsTotalPer90;
 

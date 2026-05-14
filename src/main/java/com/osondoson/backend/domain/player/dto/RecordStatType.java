@@ -10,7 +10,7 @@ import java.util.function.Function;
 
 @Getter
 @RequiredArgsConstructor
-public enum StatType {
+public enum RecordStatType {
 
     RATING("Rating", PlayerSeasonRecord::getStatRatingAverage),
     GOALS_PER90("Goals/90", PlayerSeasonRecord::getStatGoalsTotalPer90),
@@ -35,7 +35,7 @@ public enum StatType {
         return new KeyStat(label, extractor.apply(playerSeasonRecord));
     }
 
-    public static List<StatType> searchStatsOf(Position position) {
+    public static List<RecordStatType> searchStatsOf(Position position) {
         return switch (position) {
             case FW -> List.of(RATING, GOALS_PER90, SHOTS_ON_TARGET_PER90);
             case MF -> List.of(RATING, PASSES_PER90, KEY_PASSES_PER90);
@@ -44,7 +44,7 @@ public enum StatType {
         };
     }
 
-    public static List<StatType> recordStatsOf(Position position) {
+    public static List<RecordStatType> recordStatsOf(Position position) {
         return switch (position) {
             case FW -> List.of(GOALS_PER90, SHOTS_PER90, SUCCESSFUL_DRIBBLES_PER90);
             case MF -> List.of(KEY_PASSES_PER90, PASSES_PER90, TACKLES_PER90);

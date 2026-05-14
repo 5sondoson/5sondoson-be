@@ -9,7 +9,7 @@ public record KeyStat(
         Double value
 ) {
 
-    public static List<KeyStat> listOf(List<StatType> statTypes, PlayerSeasonRecord playerSeasonRecord) {
+    public static List<KeyStat> listOf(List<RecordStatType> statTypes, PlayerSeasonRecord playerSeasonRecord) {
         if (statTypes == null || playerSeasonRecord == null) {
             return List.of();
         }

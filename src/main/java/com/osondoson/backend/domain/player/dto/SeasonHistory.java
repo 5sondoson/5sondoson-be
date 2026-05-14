@@ -25,7 +25,7 @@ public record SeasonHistory(
         String leagueKey = playerSeasonRecord.getLeague() != null ? playerSeasonRecord.getLeague().name().toLowerCase() : null;
 
         List<KeyStat> keyStats = KeyStat.listOf(
-                StatType.recordStatsOf(position),
+                RecordStatType.recordStatsOf(position),
                 playerSeasonRecord
         );
 
