@@ -1,5 +1,6 @@
 package com.osondoson.backend.domain.player.entity;
 
+import com.osondoson.backend.admin.ai.dto.AiMarketValuePrediction;
 import com.osondoson.backend.enums.league.League;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -39,4 +40,29 @@ public class PlayerValuePrediction {
 
     @Column(name = "computed_at", nullable = false)
     private LocalDateTime computedAt;
+
+    public static PlayerValuePrediction of(
+            PlayerPerformancePrediction performancePrediction,
+            Player player,
+            League destinationLeague,
+            AiMarketValuePrediction aiMarketValuePrediction
+    ) {
+        PlayerValuePrediction playerPerformancePrediction = new PlayerValuePrediction();
+        playerPerformancePrediction.playerPerformancePrediction = performancePrediction;
+        playerPerformancePrediction.player = player;
+        playerPerformancePrediction.destinationLeague = destinationLeague;
+        playerPerformancePrediction.computedAt = LocalDateTime.now();
+        playerPerformancePrediction.applyItem(aiMarketValuePrediction);
+        return playerPerformancePrediction;
+    }
+
+    public void update(AiMarketValuePrediction aiMarketValuePrediction) {
+        this.computedAt = LocalDateTime.now();
+        applyItem(aiMarketValuePrediction);
+    }
+
+    private void applyItem(AiMarketValuePrediction aiMarketValuePrediction) {
+        this.predictedMv = aiMarketValuePrediction.predictedMv();
+        this.mvChangeRate = aiMarketValuePrediction.mvChangeRate();
+    }
 }
