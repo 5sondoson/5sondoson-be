@@ -103,7 +103,7 @@ public class PlayerPredictMapper {
         return new AdaptScoreResult(
                 performancePrediction.getAdaptScoreTotal(),
                 new AdaptScore(
-                        performancePrediction.getAdaptScoreMinutes(),
+                        performancePrediction.getAdaptScoreLeagueAdaptability(),
                         performancePrediction.getAdaptScorePerformance(),
                         performancePrediction.getAdaptScoreMarketValue(),
                         performancePrediction.getAdaptScoreConsistency()
