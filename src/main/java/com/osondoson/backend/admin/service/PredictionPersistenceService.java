@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,38 +30,30 @@ public class PredictionPersistenceService {
     private final AdaptScoreCalculator adaptScoreCalculator;
 
     @Transactional
-    public void upsertPerformancePredictions(
+    public int upsertPerformancePredictions(
             List<AiPerformancePrediction> aiPerformancePredictions,
             League destinationLeague,
             Map<Long, Player> playerMap,
             Map<Long, PlayerSeasonRecord> latestRecordMap,
             Map<Long, List<PlayerSeasonRecord>> allRecordsMap
     ) {
+        Map<Long, PlayerPerformancePrediction> existingMap =
+                loadExistingPredictionMap(aiPerformancePredictions, destinationLeague);
 
+        int processed = 0;
         for (AiPerformancePrediction aiPerformancePrediction : aiPerformancePredictions) {
             Player player = playerMap.get(aiPerformancePrediction.playerId());
             if (player == null) {
                 continue;
             }
 
-            Optional<PlayerPerformancePrediction> existing =
-                    performancePredictionRepository.findByPlayerIdAndDestinationLeague(
-                            aiPerformancePrediction.playerId(),
-                            destinationLeague
-                    );
-
-            PlayerPerformancePrediction performancePrediction;
-            if (existing.isPresent()) {
-                existing.get().update(aiPerformancePrediction);
-                performancePrediction = existing.get();
-            } else {
-                performancePrediction = PlayerPerformancePrediction.of(
-                        player,
-                        destinationLeague,
-                        aiPerformancePrediction
-                );
-            }
-
+            PlayerPerformancePrediction existingPerformancePrediction = existingMap.get(aiPerformancePrediction.playerId());
+            PlayerPerformancePrediction performancePrediction = resolvePerformancePrediction(
+                    existingPerformancePrediction,
+                    player,
+                    destinationLeague,
+                    aiPerformancePrediction
+            );
             performancePredictionRepository.save(performancePrediction);
 
             adaptScoreCalculator.applyPerformanceAdaptScores(
@@ -71,55 +63,58 @@ public class PredictionPersistenceService {
                     allRecordsMap.getOrDefault(aiPerformancePrediction.playerId(), List.of()),
                     player.getAge()
             );
+            processed++;
         }
+        return processed;
     }
 
     @Transactional
-    public void upsertMarketValuePredictions(
+    public int upsertMarketValuePredictions(
             List<AiMarketValuePrediction> marketValuePredictions,
             League destinationLeague,
             Map<Long, Player> playerMap,
-            Map<Long, PlayerPerformancePrediction> performancePredictionMap) {
+            Map<Long, PlayerPerformancePrediction> performancePredictionMap
+    ) {
 
+        Map<Long, PlayerValuePrediction> existingMap = loadExistingValueMap(performancePredictionMap);
+
+        int processed = 0;
         for (AiMarketValuePrediction marketValuePrediction : marketValuePredictions) {
             Player player = playerMap.get(marketValuePrediction.playerId());
-            PlayerPerformancePrediction performancePrediction = performancePredictionMap.get(marketValuePrediction.playerId());
+            PlayerPerformancePrediction performancePrediction
+                    = performancePredictionMap.get(marketValuePrediction.playerId());
             if (player == null || performancePrediction == null) {
                 continue;
             }
 
-            Optional<PlayerValuePrediction> existing =
-                    valuePredictionRepository.findByPlayerPerformancePredictionId(performancePrediction.getId());
+            PlayerValuePrediction existingValuePrediction = existingMap.get(performancePrediction.getId());
+            PlayerValuePrediction valuePrediction = resolveValuePrediction(
+                    existingValuePrediction,
+                    performancePrediction,
+                    player,
+                    destinationLeague,
+                    marketValuePrediction
+            );
+            valuePredictionRepository.save(valuePrediction);
 
-            if (existing.isPresent()) {
-                existing.get().update(marketValuePrediction);
-                valuePredictionRepository.save(existing.get());
-            } else {
-                valuePredictionRepository.save(
-                        PlayerValuePrediction.of(
-                                performancePrediction,
-                                player,
-                                destinationLeague,
-                                marketValuePrediction
-                        )
-                );
-            }
-
-            adaptScoreCalculator.applyMarketValueAdaptScore(
-                    performancePrediction, marketValuePrediction.mvChangeRate());
+            adaptScoreCalculator.applyMarketValueAdaptScore(performancePrediction, marketValuePrediction.mvChangeRate());
             performancePredictionRepository.save(performancePrediction);
+            processed++;
         }
+        return processed;
     }
 
     @Transactional
-    public void replaceSimilarPlayers(
+    public int replaceSimilarPlayers(
             List<AiSimilarPlayersPrediction> similarPlayersPredictions,
             League destinationLeague,
             Map<Long, PlayerPerformancePrediction> performancePredictionMap
     ) {
 
+        int processed = 0;
         for (AiSimilarPlayersPrediction similarPlayersPrediction : similarPlayersPredictions) {
-            PlayerPerformancePrediction playerPerformancePrediction = performancePredictionMap.get(similarPlayersPrediction.playerId());
+            PlayerPerformancePrediction playerPerformancePrediction
+                    = performancePredictionMap.get(similarPlayersPrediction.playerId());
             if (playerPerformancePrediction == null) {
                 continue;
             }
@@ -134,6 +129,74 @@ public class PredictionPersistenceService {
                             similarPlayersPrediction.similarPlayers()
                     );
             similarPlayerRepository.saveAll(similarPlayers);
+            processed++;
         }
+        return processed;
+    }
+
+    private Map<Long, PlayerPerformancePrediction> loadExistingPredictionMap(
+            List<AiPerformancePrediction> aiPerformancePredictions,
+            League destinationLeague
+    ) {
+        List<Long> playerIds = aiPerformancePredictions.stream()
+                .map(AiPerformancePrediction::playerId)
+                .toList();
+
+        return performancePredictionRepository.findByPlayerIdsAndDestinationLeague(playerIds, destinationLeague)
+                .stream()
+                .collect(Collectors.toMap(
+                        prediction -> prediction.getPlayer().getId(),
+                        prediction -> prediction
+                ));
+    }
+
+    private PlayerPerformancePrediction resolvePerformancePrediction(
+            PlayerPerformancePrediction existingPerformancePrediction,
+            Player player,
+            League destinationLeague,
+            AiPerformancePrediction aiPerformancePrediction
+    ) {
+        if (existingPerformancePrediction != null) {
+            existingPerformancePrediction.update(aiPerformancePrediction);
+            return existingPerformancePrediction;
+        }
+        return PlayerPerformancePrediction.of(
+                player,
+                destinationLeague,
+                aiPerformancePrediction
+        );
+    }
+
+    private Map<Long, PlayerValuePrediction> loadExistingValueMap(
+            Map<Long, PlayerPerformancePrediction> performancePredictionMap
+    ) {
+        List<Long> predictionIds = performancePredictionMap.values().stream()
+                .map(PlayerPerformancePrediction::getId)
+                .toList();
+        return valuePredictionRepository.findByPlayerPerformancePredictionIdIn(predictionIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        valuePrediction -> valuePrediction.getPlayerPerformancePrediction().getId(),
+                        valuePrediction -> valuePrediction
+                ));
+    }
+
+    private PlayerValuePrediction resolveValuePrediction(
+            PlayerValuePrediction existingValuePrediction,
+            PlayerPerformancePrediction performancePrediction,
+            Player player,
+            League destinationLeague,
+            AiMarketValuePrediction marketValuePrediction
+    ) {
+        if (existingValuePrediction != null) {
+            existingValuePrediction.update(marketValuePrediction);
+            return existingValuePrediction;
+        }
+        return PlayerValuePrediction.of(
+                performancePrediction,
+                player,
+                destinationLeague,
+                marketValuePrediction
+        );
     }
 }

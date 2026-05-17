@@ -162,14 +162,13 @@ public class AdminPredictionBatchService {
         List<AiPerformancePrediction> performancePredictions =
                 aiClient.fetchPerformancePredictions(playerIds, destinationLeague);
 
-        persistenceService.upsertPerformancePredictions(
+        return persistenceService.upsertPerformancePredictions(
                 performancePredictions,
                 destinationLeague,
                 playerMap,
                 seasonRecordMaps.latest(),
                 seasonRecordMaps.all()
         );
-        return performancePredictions.size();
     }
 
     private int processMarketValueChunk(
@@ -182,13 +181,12 @@ public class AdminPredictionBatchService {
         List<AiMarketValuePrediction> marketValuePredictions =
                 aiClient.fetchMarketValuePredictions(playerIds, destinationLeague);
 
-        persistenceService.upsertMarketValuePredictions(
+        return persistenceService.upsertMarketValuePredictions(
                 marketValuePredictions,
                 destinationLeague,
                 playerMap,
                 playerPerformancePredictionMap
         );
-        return marketValuePredictions.size();
     }
 
     private int processSimilarPlayersChunk(League destinationLeague, List<Long> playerIds) {
@@ -197,12 +195,11 @@ public class AdminPredictionBatchService {
         List<AiSimilarPlayersPrediction> similarPlayersPredictions =
                 aiClient.fetchSimilarPlayersPredictions(playerIds, destinationLeague);
 
-        persistenceService.replaceSimilarPlayers(
+        return persistenceService.replaceSimilarPlayers(
                 similarPlayersPredictions,
                 destinationLeague,
                 playerPerformancePredictionMap
         );
-        return similarPlayersPredictions.size();
     }
     
     private BatchContext loadBatchContext() {
