@@ -71,7 +71,12 @@ public class SimilarPlayer {
             League destinationLeague,
             List<SimilarPlayerEntry> similarPlayerEntries
     ) {
+        if (similarPlayerEntries == null) {
+            return List.of();
+        }
+
         List<SimilarPlayerEntry> sorted = similarPlayerEntries.stream()
+                .filter(entry -> entry.similarPlayerId() != null && entry.similarityScore() != null)
                 .sorted(Comparator.comparingDouble(SimilarPlayerEntry::similarityScore).reversed())
                 .toList();
 
