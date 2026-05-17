@@ -92,28 +92,24 @@ public class AdaptScoreCalculator {
     }
 
     private int scoreFW(PlayerPerformancePrediction performancePrediction, PlayerSeasonRecord currPerformance) {
-        return retentionScore(performancePrediction.getPredGoalsTotalPer90(), currPerformance.getStatGoalsTotalPer90(), 16)
-             + retentionScore(performancePrediction.getPredShotsTotalPer90(), currPerformance.getStatShotsTotalTotalPer90(), 12)
-             + retentionScore(performancePrediction.getPredSuccessfulDribblesPer90(), currPerformance.getStatSuccessfulDribblesTotalPer90(), 8)
-             + retentionScore(performancePrediction.getPredKeyPassesPer90(), currPerformance.getStatKeyPassesTotalPer90(), 4);
+        return retentionScore(performancePrediction.getPredGoalsTotalPer90(), currPerformance.getStatGoalsTotalPer90(), 20)
+             + retentionScore(performancePrediction.getPredShotsTotalPer90(), currPerformance.getStatShotsTotalTotalPer90(), 13)
+             + retentionScore(performancePrediction.getPredSuccessfulDribblesPer90(), currPerformance.getStatSuccessfulDribblesTotalPer90(), 7);
     }
 
     private int scoreMF(PlayerPerformancePrediction performancePrediction, PlayerSeasonRecord currPerformance) {
-        return retentionScore(performancePrediction.getPredKeyPassesPer90(), currPerformance.getStatKeyPassesTotalPer90(), 12)
-             + retentionScore(performancePrediction.getPredPassesTotalPer90(), currPerformance.getStatPassesTotalPer90(), 12)
-             + retentionScore(performancePrediction.getPredTacklesTotalPer90(), currPerformance.getStatTacklesTotalPer90(), 10)
-             + retentionScore(performancePrediction.getPredSuccessfulDribblesPer90(), currPerformance.getStatSuccessfulDribblesTotalPer90(), 6);
+        return retentionScore(performancePrediction.getPredKeyPassesPer90(), currPerformance.getStatKeyPassesTotalPer90(), 14)
+             + retentionScore(performancePrediction.getPredPassesTotalPer90(), currPerformance.getStatPassesTotalPer90(), 14)
+             + retentionScore(performancePrediction.getPredTacklesTotalPer90(), currPerformance.getStatTacklesTotalPer90(), 12);
     }
 
     private int scoreDF(PlayerPerformancePrediction performancePrediction, PlayerSeasonRecord currPerformance) {
-        return retentionScore(performancePrediction.getPredTacklesTotalPer90(), currPerformance.getStatTacklesTotalPer90(), 14)
-             + retentionScore(performancePrediction.getPredAerielsWonPer90(), currPerformance.getStatAerielsWonTotalPer90(), 12)
-             + retentionScore(performancePrediction.getPredBlockedShotsPer90(), currPerformance.getStatBlockedShotsTotalPer90(), 8)
-             + retentionScore(performancePrediction.getPredPassesTotalPer90(), currPerformance.getStatPassesTotalPer90(), 6);
+        return retentionScore(performancePrediction.getPredAerielsWonPer90(), currPerformance.getStatAerielsWonTotalPer90(), 20)
+             + retentionScore(performancePrediction.getPredBlockedShotsPer90(), currPerformance.getStatBlockedShotsTotalPer90(), 20);
     }
 
     private int scoreGK(PlayerPerformancePrediction performancePrediction, PlayerSeasonRecord currPerformance) {
-        return retentionScore(performancePrediction.getPredBlockedShotsPer90(), currPerformance.getStatBlockedShotsTotalPer90(), 24)
+        return retentionScore(performancePrediction.getPredAccuratePassesPct(), currPerformance.getStatAccuratePassesPercentageTotal(), 24)
              + retentionScore(performancePrediction.getPredCleansheetsTotal(), currPerformance.getStatCleansheetsTotal(), 16);
     }
 
@@ -299,12 +295,12 @@ public class AdaptScoreCalculator {
                     seasonRecords.stream().map(PlayerSeasonRecord::getStatKeyPassesTotalPer90).toList()
             );
             case DF -> List.of(
-                    seasonRecords.stream().map(PlayerSeasonRecord::getStatTacklesTotalPer90).toList(),
-                    seasonRecords.stream().map(PlayerSeasonRecord::getStatAerielsWonTotalPer90).toList()
+                    seasonRecords.stream().map(PlayerSeasonRecord::getStatAerielsWonTotalPer90).toList(),
+                    seasonRecords.stream().map(PlayerSeasonRecord::getStatBlockedShotsTotalPer90).toList()
             );
             case GK -> List.of(
-                    seasonRecords.stream().map(PlayerSeasonRecord::getStatBlockedShotsTotalPer90).toList(),
-                    seasonRecords.stream().map(PlayerSeasonRecord::getStatClearancesTotalPer90).toList()
+                    seasonRecords.stream().map(PlayerSeasonRecord::getStatAccuratePassesPercentageTotal).toList(),
+                    seasonRecords.stream().map(PlayerSeasonRecord::getStatCleansheetsTotal).toList()
             );
         };
     }
