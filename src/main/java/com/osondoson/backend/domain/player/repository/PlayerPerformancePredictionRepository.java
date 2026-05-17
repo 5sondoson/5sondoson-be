@@ -48,4 +48,11 @@ public interface PlayerPerformancePredictionRepository extends JpaRepository<Pla
             ORDER BY ppp.adaptScoreTotal DESC, ppp.id ASC
             """)
     List<PlayerPerformancePrediction> findTopFeatured(Pageable pageable);
+
+    @Query("SELECT ppp FROM PlayerPerformancePrediction ppp WHERE ppp.player.id IN :playerIds AND ppp.destinationLeague = :league")
+    List<PlayerPerformancePrediction> findByPlayerIdsAndDestinationLeague(
+            @Param("playerIds") List<Long> playerIds,
+            @Param("league") League league
+    );
+
 }

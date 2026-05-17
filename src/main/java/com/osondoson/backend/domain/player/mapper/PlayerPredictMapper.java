@@ -37,7 +37,8 @@ public class PlayerPredictMapper {
         List<KeyStat> currentKeyStats = buildKeyStats(position, latestRecord);
         CurrentStatsResult currentStatsResult = new CurrentStatsResult(currentMarketValue, currentKeyStats);
 
-        SimilarPlayersResult similarPlayersResult = buildSimilarPlayersResult(similarPlayers, similarPlayerMap, similarPlayerRecordMap);
+        SimilarPlayersResult similarPlayersResult
+                = buildSimilarPlayersResult(similarPlayers, similarPlayerMap, similarPlayerRecordMap);
 
         if (performancePrediction == null) {
             return PlayerPredictResponse.withCurrentOnly(currentStatsResult, similarPlayersResult);
@@ -46,7 +47,8 @@ public class PlayerPredictMapper {
         List<KeyStat> predictedKeyStats = buildPredictedKeyStats(position, performancePrediction);
         Long predictedMv = valuePrediction != null ? valuePrediction.getPredictedMv() : null;
         PredictedStatsResult predictedStatsResult = buildPredictedStats(predictedMv, valuePrediction, predictedKeyStats);
-        StatChangesResult statChangesResult = buildStatChanges(currentKeyStats, predictedKeyStats, currentMarketValue, predictedMv);
+        StatChangesResult statChangesResult
+                = buildStatChanges(currentKeyStats, predictedKeyStats, currentMarketValue, predictedMv);
         AdaptScoreResult adaptScoreResult = buildAdaptScore(performancePrediction);
         String llmSummary = performancePrediction.getLlmSummary();
 
@@ -64,9 +66,7 @@ public class PlayerPredictMapper {
         if (position == null) {
             return List.of();
         }
-        return RecordStatType.recordStatsOf(position).stream()
-                .map(statType -> statType.extract(seasonRecord))
-                .toList();
+        return KeyStat.listOf(RecordStatType.recordStatsOf(position), seasonRecord);
     }
 
     private List<KeyStat> buildPredictedKeyStats(Position position, PlayerPerformancePrediction performancePrediction) {
@@ -103,7 +103,7 @@ public class PlayerPredictMapper {
         return new AdaptScoreResult(
                 performancePrediction.getAdaptScoreTotal(),
                 new AdaptScore(
-                        performancePrediction.getAdaptScoreMinutes(),
+                        performancePrediction.getAdaptScoreLeagueAdaptability(),
                         performancePrediction.getAdaptScorePerformance(),
                         performancePrediction.getAdaptScoreMarketValue(),
                         performancePrediction.getAdaptScoreConsistency()

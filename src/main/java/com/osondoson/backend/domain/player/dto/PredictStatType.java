@@ -21,7 +21,7 @@ public enum PredictStatType {
     AERIALS_WON_PER90("AerialsWon/90", pred -> toDouble(pred.getPredAerielsWonPer90())),
     BLOCKS_PER90("Blocks/90", pred -> toDouble(pred.getPredBlockedShotsPer90())),
     PASS_ACCURACY("PassAccuracy", pred -> toDouble(pred.getPredAccuratePassesPct())),
-    CLEAN_SHEETS("CleanSheets", pred -> toDouble(pred.getPredCleensheetsTotal()));
+    CLEAN_SHEETS("CleanSheets", pred -> toDouble(pred.getPredCleansheetsTotal()));
 
     private final String label;
     private final Function<PlayerPerformancePrediction, Double> extractor;

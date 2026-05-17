@@ -1,5 +1,6 @@
 package com.osondoson.backend.domain.player.entity;
 
+import com.osondoson.backend.admin.ai.dto.AiPerformancePrediction;
 import com.osondoson.backend.enums.league.League;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -27,11 +28,13 @@ public class PlayerPerformancePrediction {
     @Column(name = "destination_league", nullable = false, length = 50)
     private League destinationLeague;
 
+    // ────────────────────────────────────────── 적응도 점수  ─────────────────────────────────────────────────────
+
     @Column(name = "adapt_score_total")
     private Integer adaptScoreTotal;
 
-    @Column(name = "adapt_score_minutes")
-    private Integer adaptScoreMinutes;
+    @Column(name = "adapt_score_league_adaptability")
+    private Integer adaptScoreLeagueAdaptability;
 
     @Column(name = "adapt_score_performance")
     private Integer adaptScorePerformance;
@@ -41,6 +44,8 @@ public class PlayerPerformancePrediction {
 
     @Column(name = "adapt_score_consistency")
     private Integer adaptScoreConsistency;
+
+    // ────────────────────────────────────────── AI 예측 스탯 ─────────────────────────────────────────────────────
 
     @Column(name = "pred_goals_total_per90")
     private Float predGoalsTotalPer90;
@@ -70,11 +75,69 @@ public class PlayerPerformancePrediction {
     private Float predAccuratePassesPct;
 
     @Column(name = "pred_cleansheets_total")
-    private Float predCleensheetsTotal;
+    private Float predCleansheetsTotal;
 
     @Column(name = "llm_summary", columnDefinition = "TEXT")
     private String llmSummary;
 
     @Column(name = "computed_at", nullable = false)
     private LocalDateTime computedAt;
+
+    public static PlayerPerformancePrediction of(
+            Player player,
+            League destinationLeague,
+            AiPerformancePrediction aiPerformancePrediction
+    ) {
+        PlayerPerformancePrediction performancePrediction = new PlayerPerformancePrediction();
+        performancePrediction.player = player;
+        performancePrediction.destinationLeague = destinationLeague;
+        performancePrediction.computedAt = LocalDateTime.now();
+        performancePrediction.applyPredStats(aiPerformancePrediction);
+        return performancePrediction;
+    }
+
+    public void update(AiPerformancePrediction aiPerformancePrediction) {
+        this.computedAt = LocalDateTime.now();
+        applyPredStats(aiPerformancePrediction);
+    }
+
+    public void applyPerformanceAdaptScores(int performanceRetentionRate, int leagueAdaptability, int consistency) {
+        this.adaptScorePerformance = performanceRetentionRate;
+        this.adaptScoreLeagueAdaptability = leagueAdaptability;
+        this.adaptScoreConsistency = consistency;
+        recalculateTotal();
+    }
+
+    public void applyMarketValueAdaptScore(int marketValue) {
+        this.adaptScoreMarketValue = marketValue;
+        recalculateTotal();
+    }
+
+    private void recalculateTotal() {
+        this.adaptScoreTotal = nullSafe(adaptScorePerformance)
+                + nullSafe(adaptScoreLeagueAdaptability)
+                + nullSafe(adaptScoreConsistency)
+                + nullSafe(adaptScoreMarketValue);
+    }
+
+    private void applyPredStats(AiPerformancePrediction aiPerformancePrediction) {
+        this.predGoalsTotalPer90 = aiPerformancePrediction.predGoalsTotalPer90();
+        this.predShotsTotalPer90 = aiPerformancePrediction.predShotsTotalPer90();
+        this.predSuccessfulDribblesPer90 = aiPerformancePrediction.predSuccessfulDribblesPer90();
+        this.predKeyPassesPer90 = aiPerformancePrediction.predKeyPassesPer90();
+        this.predPassesTotalPer90 = aiPerformancePrediction.predPassesTotalPer90();
+        this.predTacklesTotalPer90 = aiPerformancePrediction.predTacklesTotalPer90();
+        this.predAerielsWonPer90 = aiPerformancePrediction.predAerielsWonPer90();
+        this.predBlockedShotsPer90 = aiPerformancePrediction.predBlockedShotsPer90();
+        this.predAccuratePassesPct = aiPerformancePrediction.predAccuratePassesPct();
+        this.predCleansheetsTotal = aiPerformancePrediction.predCleensheetsTotal();
+        this.llmSummary = aiPerformancePrediction.llmSummary();
+    }
+
+    private static int nullSafe(Integer score) {
+        if (score == null) {
+            return 0;
+        }
+        return score;
+    }
 }
