@@ -101,20 +101,23 @@ public class PlayerPerformancePrediction {
         applyPredStats(aiPerformancePrediction);
     }
 
-    public void applyPerformanceAdaptScores(int performanceRetentionRage, int leagueAdaptability, int consistency) {
-        this.adaptScorePerformance = performanceRetentionRage;
+    public void applyPerformanceAdaptScores(int performanceRetentionRate, int leagueAdaptability, int consistency) {
+        this.adaptScorePerformance = performanceRetentionRate;
         this.adaptScoreLeagueAdaptability = leagueAdaptability;
         this.adaptScoreConsistency = consistency;
-        this.adaptScoreTotal = performanceRetentionRage + leagueAdaptability + consistency;
+        recalculateTotal();
     }
 
     public void applyMarketValueAdaptScore(int marketValue) {
         this.adaptScoreMarketValue = marketValue;
-        this.adaptScoreTotal =
-                nullSafe(adaptScorePerformance)
-                        + nullSafe(adaptScoreLeagueAdaptability)
-                        + nullSafe(adaptScoreConsistency)
-                        + marketValue;
+        recalculateTotal();
+    }
+
+    private void recalculateTotal() {
+        this.adaptScoreTotal = nullSafe(adaptScorePerformance)
+                + nullSafe(adaptScoreLeagueAdaptability)
+                + nullSafe(adaptScoreConsistency)
+                + nullSafe(adaptScoreMarketValue);
     }
 
     private void applyPredStats(AiPerformancePrediction aiPerformancePrediction) {
