@@ -110,8 +110,11 @@ public class PlayerPerformancePrediction {
 
     public void applyMarketValueAdaptScore(int marketValue) {
         this.adaptScoreMarketValue = marketValue;
-        this.adaptScoreTotal
-                = adaptScorePerformance + adaptScoreLeagueAdaptability + adaptScoreConsistency + marketValue;
+        this.adaptScoreTotal =
+                nullSafe(adaptScorePerformance)
+                        + nullSafe(adaptScoreLeagueAdaptability)
+                        + nullSafe(adaptScoreConsistency)
+                        + marketValue;
     }
 
     private void applyPredStats(AiPerformancePrediction aiPerformancePrediction) {
@@ -126,5 +129,12 @@ public class PlayerPerformancePrediction {
         this.predAccuratePassesPct = aiPerformancePrediction.predAccuratePassesPct();
         this.predCleansheetsTotal = aiPerformancePrediction.predCleensheetsTotal();
         this.llmSummary = aiPerformancePrediction.llmSummary();
+    }
+
+    private static int nullSafe(Integer score) {
+        if (score == null) {
+            return 0;
+        }
+        return score;
     }
 }
