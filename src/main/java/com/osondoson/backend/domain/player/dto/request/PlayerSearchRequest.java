@@ -4,15 +4,16 @@ import com.osondoson.backend.common.exception.OsondosonException;
 import com.osondoson.backend.enums.league.League;
 import com.osondoson.backend.enums.position.Position;
 import com.osondoson.backend.enums.message.FailMessage;
+import io.swagger.v3.oas.annotations.Parameter;
 
 import java.util.Set;
 
 public record PlayerSearchRequest(
         String keyword,
-        String league,
+        @Parameter(description = "리그 필터 (ERE, PRL, BPL)") String league,
         String position,
-        int page,
-        int size,
+        @Parameter(description = "페이지 번호 (1부터 시작)", required = true) int page,
+        @Parameter(description = "페이지 크기", required = true) int size,
         Boolean isActive
 ) {
     public static final Set<String> VALID_LEAGUES = League.sourceLeagueKeys();

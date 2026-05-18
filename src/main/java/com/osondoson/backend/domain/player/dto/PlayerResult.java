@@ -18,7 +18,7 @@ public record PlayerResult(
 ) {
     public static PlayerResult of(Player player, List<KeyStat> keyStats) {
         String teamName = player.getTeam() != null ? player.getTeam().getTeamName() : null;
-        String leagueKey = player.getLeague() != null ? player.getLeague().name().toLowerCase() : null;
+        String leagueKey = player.getLeague() != null ? player.getLeague().getValue() : null;
         String position = player.getPosition() != null ? player.getPosition().name() : null;
 
         return new PlayerResult(

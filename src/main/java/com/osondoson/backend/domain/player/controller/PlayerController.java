@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/players")
 @RequiredArgsConstructor
-public class PlayerController {
+public class PlayerController implements PlayerControllerSwagger {
 
     private final PlayerService playerService;
 
