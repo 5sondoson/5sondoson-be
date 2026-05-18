@@ -22,6 +22,7 @@ public enum FailMessage {
 
     //403
     FORBIDDEN(HttpStatus.FORBIDDEN, 40300, "권한이 없습니다."),
+    FORBIDDEN_ADMIN_TOKEN(HttpStatus.FORBIDDEN, 40301, "어드민 토큰이 유효하지 않습니다."),
 
     //404
     NOT_FOUND(HttpStatus.NOT_FOUND, 40400, "리소스를 찾을 수 없습니다."),
