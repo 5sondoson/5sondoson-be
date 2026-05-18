@@ -2,16 +2,19 @@ package com.osondoson.backend.admin.controller;
 
 import com.osondoson.backend.admin.dto.request.PredictionBatchRequest;
 import com.osondoson.backend.common.config.ApiErrorExamples;
+import com.osondoson.backend.common.config.OpenApiConfig;
 import com.osondoson.backend.common.response.APIErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 
 @Tag(name = "어드민 - 예측 배치", description = "AI 예측 데이터 배치 적재 API")
+@SecurityRequirement(name = OpenApiConfig.ADMIN_TOKEN_SCHEME)
 public interface AdminPredictionControllerSwagger {
 
     @Operation(
@@ -27,6 +30,15 @@ public interface AdminPredictionControllerSwagger {
                     mediaType = "application/json",
                     schema = @Schema(implementation = APIErrorResponse.class),
                     examples = @ExampleObject(name = "INVALID_LEAGUE", value = ApiErrorExamples.INVALID_LEAGUE)
+            )
+    )
+    @ApiResponse(
+            responseCode = "403",
+            description = "X-ADMIN-TOKEN 헤더가 없거나 유효하지 않음",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = APIErrorResponse.class),
+                    examples = @ExampleObject(name = "FORBIDDEN_ADMIN_TOKEN", value = ApiErrorExamples.FORBIDDEN_ADMIN_TOKEN)
             )
     )
     ResponseEntity<Void> triggerPipeline(PredictionBatchRequest predictionBatchRequest);
@@ -45,6 +57,15 @@ public interface AdminPredictionControllerSwagger {
                     examples = @ExampleObject(name = "INVALID_LEAGUE", value = ApiErrorExamples.INVALID_LEAGUE)
             )
     )
+    @ApiResponse(
+            responseCode = "403",
+            description = "X-ADMIN-TOKEN 헤더가 없거나 유효하지 않음",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = APIErrorResponse.class),
+                    examples = @ExampleObject(name = "FORBIDDEN_ADMIN_TOKEN", value = ApiErrorExamples.FORBIDDEN_ADMIN_TOKEN)
+            )
+    )
     ResponseEntity<Void> triggerPerformance(PredictionBatchRequest predictionBatchRequest);
 
     @Operation(
@@ -61,6 +82,15 @@ public interface AdminPredictionControllerSwagger {
                     examples = @ExampleObject(name = "INVALID_LEAGUE", value = ApiErrorExamples.INVALID_LEAGUE)
             )
     )
+    @ApiResponse(
+            responseCode = "403",
+            description = "X-ADMIN-TOKEN 헤더가 없거나 유효하지 않음",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = APIErrorResponse.class),
+                    examples = @ExampleObject(name = "FORBIDDEN_ADMIN_TOKEN", value = ApiErrorExamples.FORBIDDEN_ADMIN_TOKEN)
+            )
+    )
     ResponseEntity<Void> triggerMarketValue(PredictionBatchRequest predictionBatchRequest);
 
     @Operation(
@@ -75,6 +105,15 @@ public interface AdminPredictionControllerSwagger {
                     mediaType = "application/json",
                     schema = @Schema(implementation = APIErrorResponse.class),
                     examples = @ExampleObject(name = "INVALID_LEAGUE", value = ApiErrorExamples.INVALID_LEAGUE)
+            )
+    )
+    @ApiResponse(
+            responseCode = "403",
+            description = "X-ADMIN-TOKEN 헤더가 없거나 유효하지 않음",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = APIErrorResponse.class),
+                    examples = @ExampleObject(name = "FORBIDDEN_ADMIN_TOKEN", value = ApiErrorExamples.FORBIDDEN_ADMIN_TOKEN)
             )
     )
     ResponseEntity<Void> triggerSimilarPlayers(PredictionBatchRequest predictionBatchRequest);
