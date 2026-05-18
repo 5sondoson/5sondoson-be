@@ -37,4 +37,10 @@ public final class ApiErrorExamples {
               "code": "INSUFFICIENT_STATS_DATA",
               "message": "해당 선수의 스탯 데이터가 부족하여 예측이 불가합니다. 최소 1시즌 이상의 데이터가 필요합니다."
             }""";
+
+    public static final String FORBIDDEN_ADMIN_TOKEN = """
+            {
+              "code": "FORBIDDEN_ADMIN_TOKEN",
+              "message": "어드민 토큰이 유효하지 않습니다."
+            }""";
 }
