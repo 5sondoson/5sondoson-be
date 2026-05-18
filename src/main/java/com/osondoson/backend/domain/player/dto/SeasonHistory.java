@@ -22,7 +22,7 @@ public record SeasonHistory(
 
         String clubName = playerSeasonRecord.getTeam() != null ? playerSeasonRecord.getTeam().getTeamName() : null;
         String clubLogoUrl = playerSeasonRecord.getTeam() != null ? playerSeasonRecord.getTeam().getTeamLogoUrl() : null;
-        String leagueKey = playerSeasonRecord.getLeague() != null ? playerSeasonRecord.getLeague().name().toLowerCase() : null;
+        String leagueKey = playerSeasonRecord.getLeague() != null ? playerSeasonRecord.getLeague().getValue() : null;
 
         List<KeyStat> keyStats = KeyStat.listOf(
                 RecordStatType.recordStatsOf(position),

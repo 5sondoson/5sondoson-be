@@ -20,7 +20,7 @@ public record PlayerProfileResponse(
     public static PlayerProfileResponse of(Player player) {
         String teamName = player.getTeam() != null ? player.getTeam().getTeamName() : null;
         String teamLogoUrl = player.getTeam() != null ? player.getTeam().getTeamLogoUrl() : null;
-        String leagueKey = player.getLeague() != null ? player.getLeague().name().toLowerCase() : null;
+        String leagueKey = player.getLeague() != null ? player.getLeague().getValue() : null;
         String position = player.getPosition() != null ? player.getPosition().name() : null;
 
         return new PlayerProfileResponse(

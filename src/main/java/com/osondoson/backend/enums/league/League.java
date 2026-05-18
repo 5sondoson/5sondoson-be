@@ -13,9 +13,9 @@ import java.util.stream.Collectors;
 public enum League {
 
     // 비5대리그
-    EREDIVISIE("eredivisie", "Eredivisie", "Netherlands", true),
-    PRIMEIRA_LIGA("primeira_liga", "Primeira Liga", "Portugal", true),
-    PRO_LEAGUE("pro_league", "Pro League", "Belgium", true),
+    EREDIVISIE("ERE", "Eredivisie", "Netherlands", true),
+    PRIMEIRA_LIGA("PRL", "Primeira Liga", "Portugal", true),
+    PRO_LEAGUE("BPL", "Pro League", "Belgium", true),
 
     //5대리그
     PREMIER_LEAGUE("EPL", "Premier League", "England", false),
