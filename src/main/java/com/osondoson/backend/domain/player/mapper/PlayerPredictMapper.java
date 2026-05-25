@@ -50,15 +50,13 @@ public class PlayerPredictMapper {
         StatChangesResult statChangesResult
                 = buildStatChanges(currentKeyStats, predictedKeyStats, currentMarketValue, predictedMv);
         AdaptScoreResult adaptScoreResult = buildAdaptScore(performancePrediction);
-        String llmSummary = performancePrediction.getLlmSummary();
 
         return new PlayerPredictResponse(
                 currentStatsResult,
                 predictedStatsResult,
                 statChangesResult,
                 adaptScoreResult,
-                similarPlayersResult,
-                llmSummary
+                similarPlayersResult
         );
     }
 

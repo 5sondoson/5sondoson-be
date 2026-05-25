@@ -11,6 +11,5 @@ public record AiPerformancePrediction(
         Float predAerielsWonPer90,
         Float predBlockedShotsPer90,
         Float predAccuratePassesPct,
-        Float predCleensheetsTotal,
-        String llmSummary
+        Float predCleensheetsTotal
 ) {}
