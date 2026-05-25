@@ -77,9 +77,6 @@ public class PlayerPerformancePrediction {
     @Column(name = "pred_cleansheets_total")
     private Float predCleansheetsTotal;
 
-    @Column(name = "llm_summary", columnDefinition = "TEXT")
-    private String llmSummary;
-
     @Column(name = "computed_at", nullable = false)
     private LocalDateTime computedAt;
 
@@ -131,7 +128,6 @@ public class PlayerPerformancePrediction {
         this.predBlockedShotsPer90 = aiPerformancePrediction.predBlockedShotsPer90();
         this.predAccuratePassesPct = aiPerformancePrediction.predAccuratePassesPct();
         this.predCleansheetsTotal = aiPerformancePrediction.predCleensheetsTotal();
-        this.llmSummary = aiPerformancePrediction.llmSummary();
     }
 
     private static int nullSafe(Integer score) {

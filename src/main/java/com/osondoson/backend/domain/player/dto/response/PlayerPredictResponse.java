@@ -7,10 +7,9 @@ public record PlayerPredictResponse(
         PredictedStatsResult predictedStats,
         StatChangesResult statChanges,
         AdaptScoreResult adaptScore,
-        SimilarPlayersResult similarPlayers,
-        String llmSummary
+        SimilarPlayersResult similarPlayers
 ) {
     public static PlayerPredictResponse withCurrentOnly(CurrentStatsResult currentStats, SimilarPlayersResult similarPlayers) {
-        return new PlayerPredictResponse(currentStats, null, null, null, similarPlayers, null);
+        return new PlayerPredictResponse(currentStats, null, null, null, similarPlayers);
     }
 }
