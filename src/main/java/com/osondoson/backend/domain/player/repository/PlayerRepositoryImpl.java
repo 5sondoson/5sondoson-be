@@ -4,7 +4,11 @@ import com.osondoson.backend.domain.player.entity.Player;
 import com.osondoson.backend.enums.league.League;
 import com.osondoson.backend.enums.position.Position;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -14,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 import static com.osondoson.backend.domain.player.entity.QPlayer.player;
+import static com.osondoson.backend.domain.player.entity.QPlayerValuePrediction.playerValuePrediction;
 
 @RequiredArgsConstructor
 public class PlayerRepositoryImpl implements PlayerRepositoryCustom {
@@ -34,6 +39,7 @@ public class PlayerRepositoryImpl implements PlayerRepositoryCustom {
                 .selectFrom(player)
                 .leftJoin(player.team).fetchJoin()
                 .where(searchCondition)
+                .orderBy(orderByMarketValueDeltaDesc(), player.id.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -94,6 +100,15 @@ public class PlayerRepositoryImpl implements PlayerRepositoryCustom {
             return null;
         }
         return player.isActive.eq(isActive);
+    }
+
+    private OrderSpecifier<Long> orderByMarketValueDeltaDesc() {
+        JPQLQuery<Long> maxDelta = JPAExpressions
+                .select(playerValuePrediction.predictedMv.subtract(player.currentMarketValue).max())
+                .from(playerValuePrediction)
+                .where(playerValuePrediction.player.eq(player));
+
+        return new OrderSpecifier<>(Order.DESC, maxDelta, OrderSpecifier.NullHandling.NullsLast);
     }
 
     private boolean isBlank(String value) {
