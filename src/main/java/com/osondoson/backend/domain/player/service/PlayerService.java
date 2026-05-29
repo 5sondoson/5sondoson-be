@@ -188,7 +188,7 @@ public class PlayerService {
     private Map<Long, Player> resolveSimilarPlayerMap(List<SimilarPlayer> similarPlayers) {
         if (similarPlayers.isEmpty()) return Map.of();
         List<Long> ids = similarPlayers.stream().map(SimilarPlayer::getSimilarPlayerId).toList();
-        return playerRepository.findAllById(ids).stream()
+        return playerRepository.findAllWithTeamByIdIn(ids).stream()
                 .collect(Collectors.toMap(Player::getId, Function.identity()));
     }
 
