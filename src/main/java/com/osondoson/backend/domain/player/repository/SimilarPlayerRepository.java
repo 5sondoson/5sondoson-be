@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface SimilarPlayerRepository extends JpaRepository<SimilarPlayer, Long> {
 
-    List<SimilarPlayer> findByPredictionIdOrderBySimilarityRankAsc(Long predictionId);
+    List<SimilarPlayer> findTop3ByPredictionIdOrderBySimilarityRankAsc(Long predictionId);
 
     @Modifying
     @Query("DELETE FROM SimilarPlayer sp WHERE sp.prediction.id = :predictionId")

@@ -117,7 +117,7 @@ public class PlayerService {
             valuePrediction = playerValuePredictionRepository
                     .findByPlayerPerformancePredictionId(performancePrediction.getId())
                     .orElse(null);
-            similarPlayers = similarPlayerRepository.findByPredictionIdOrderBySimilarityRankAsc(performancePrediction.getId());
+            similarPlayers = similarPlayerRepository.findTop3ByPredictionIdOrderBySimilarityRankAsc(performancePrediction.getId());
         }
 
         Map<Long, Player> similarPlayerMap = resolveSimilarPlayerMap(similarPlayers);
