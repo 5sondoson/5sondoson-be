@@ -117,4 +117,31 @@ public interface AdminPredictionControllerSwagger {
             )
     )
     ResponseEntity<Void> triggerSimilarPlayers(PredictionBatchRequest predictionBatchRequest);
+
+    @Operation(
+            summary = "적응도 점수 재계산 (AI 호출 없음)",
+            description = "이미 적재된 성과 예측·시장가치 예측·시즌 기록만으로 해당 리그의 적응도 점수를 다시 산출해 저장한다. "
+                    + "AI 서버를 호출하지 않으며, 적응도 점수 산식이 변경됐을 때 기존 데이터를 일괄 갱신하는 용도로 사용한다. "
+                    + "요청 즉시 202를 반환하고 실제 재계산은 비동기로 수행된다."
+    )
+    @ApiResponse(responseCode = "202", description = "재계산 작업 접수 (응답 본문 없음)")
+    @ApiResponse(
+            responseCode = "400",
+            description = "리그 값이 올바르지 않음",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = APIErrorResponse.class),
+                    examples = @ExampleObject(name = "INVALID_LEAGUE", value = ApiErrorExamples.INVALID_LEAGUE)
+            )
+    )
+    @ApiResponse(
+            responseCode = "403",
+            description = "X-ADMIN-TOKEN 헤더가 없거나 유효하지 않음",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = APIErrorResponse.class),
+                    examples = @ExampleObject(name = "FORBIDDEN_ADMIN_TOKEN", value = ApiErrorExamples.FORBIDDEN_ADMIN_TOKEN)
+            )
+    )
+    ResponseEntity<Void> triggerAdaptScoreRecompute(PredictionBatchRequest predictionBatchRequest);
 }

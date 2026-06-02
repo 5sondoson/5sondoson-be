@@ -36,4 +36,10 @@ public class AdminPredictionController implements AdminPredictionControllerSwagg
         adminPredictionBatchService.executeSimilarPlayers(predictionBatchRequest.destinationLeagueAsEnum());
         return ResponseEntity.accepted().build();
     }
+
+    @PostMapping("/adapt-score")
+    public ResponseEntity<Void> triggerAdaptScoreRecompute(@RequestBody PredictionBatchRequest predictionBatchRequest) {
+        adminPredictionBatchService.executeAdaptScoreRecompute(predictionBatchRequest.destinationLeagueAsEnum());
+        return ResponseEntity.accepted().build();
+    }
 }

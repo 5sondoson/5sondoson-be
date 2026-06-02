@@ -33,8 +33,8 @@ public class PlayerPerformancePrediction {
     @Column(name = "adapt_score_total")
     private Integer adaptScoreTotal;
 
-    @Column(name = "adapt_score_league_adaptability")
-    private Integer adaptScoreLeagueAdaptability;
+    @Column(name = "adapt_score_growth_trend")
+    private Integer adaptScoreGrowthTrend;
 
     @Column(name = "adapt_score_performance")
     private Integer adaptScorePerformance;
@@ -98,9 +98,9 @@ public class PlayerPerformancePrediction {
         applyPredStats(aiPerformancePrediction);
     }
 
-    public void applyPerformanceAdaptScores(int performanceRetentionRate, int leagueAdaptability, int consistency) {
+    public void applyPerformanceAdaptScores(int performanceRetentionRate, int growthTrend, int consistency) {
         this.adaptScorePerformance = performanceRetentionRate;
-        this.adaptScoreLeagueAdaptability = leagueAdaptability;
+        this.adaptScoreGrowthTrend = growthTrend;
         this.adaptScoreConsistency = consistency;
         recalculateTotal();
     }
@@ -112,7 +112,7 @@ public class PlayerPerformancePrediction {
 
     private void recalculateTotal() {
         this.adaptScoreTotal = nullSafe(adaptScorePerformance)
-                + nullSafe(adaptScoreLeagueAdaptability)
+                + nullSafe(adaptScoreGrowthTrend)
                 + nullSafe(adaptScoreConsistency)
                 + nullSafe(adaptScoreMarketValue);
     }

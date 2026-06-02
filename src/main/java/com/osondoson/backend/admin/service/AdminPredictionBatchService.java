@@ -11,9 +11,11 @@ import com.osondoson.backend.admin.service.batch.PredictionStep;
 import com.osondoson.backend.domain.player.entity.Player;
 import com.osondoson.backend.domain.player.entity.PlayerPerformancePrediction;
 import com.osondoson.backend.domain.player.entity.PlayerSeasonRecord;
+import com.osondoson.backend.domain.player.entity.PlayerValuePrediction;
 import com.osondoson.backend.domain.player.repository.PlayerPerformancePredictionRepository;
 import com.osondoson.backend.domain.player.repository.PlayerRepository;
 import com.osondoson.backend.domain.player.repository.PlayerSeasonRecordRepository;
+import com.osondoson.backend.domain.player.repository.PlayerValuePredictionRepository;
 import com.osondoson.backend.enums.league.League;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +37,7 @@ public class AdminPredictionBatchService {
     private final PlayerRepository playerRepository;
     private final PlayerSeasonRecordRepository seasonRecordRepository;
     private final PlayerPerformancePredictionRepository performancePredictionRepository;
+    private final PlayerValuePredictionRepository valuePredictionRepository;
     private final AiPredictionClient aiClient;
     private final PredictionPersistenceService persistenceService;
 
@@ -71,6 +74,52 @@ public class AdminPredictionBatchService {
         } catch (Exception e) {
             log.error("[전체 예측 데이터 적재] 실패 league={}", destinationLeague, e);
         }
+    }
+
+    @Async("predictionExecutor")
+    public void executeAdaptScoreRecompute(League destinationLeague) {
+        log.info("[적응도 점수 재계산] 시작 league={}", destinationLeague);
+
+        try {
+            List<PlayerPerformancePrediction> performancePredictions =
+                    performancePredictionRepository.findAllByDestinationLeagueWithPlayer(destinationLeague);
+
+            if (performancePredictions.isEmpty()) {
+                log.info("[적응도 점수 재계산] 대상 없음 league={}", destinationLeague);
+                return;
+            }
+
+            List<Long> playerIds = performancePredictions.stream()
+                    .map(performancePrediction -> performancePrediction.getPlayer().getId())
+                    .toList();
+            SeasonRecordMaps seasonRecordMaps = loadSeasonRecordMaps(playerIds);
+            Map<Long, Float> mvChangeRateMap = loadMvChangeRateMap(performancePredictions);
+
+            int processed = persistenceService.recomputeAdaptScores(
+                    performancePredictions,
+                    seasonRecordMaps.latest(),
+                    seasonRecordMaps.all(),
+                    mvChangeRateMap
+            );
+
+            log.info("[적응도 점수 재계산] 완료 league={}, processed={}", destinationLeague, processed);
+        } catch (Exception e) {
+            log.error("[적응도 점수 재계산] 실패 league={}", destinationLeague, e);
+        }
+    }
+
+    private Map<Long, Float> loadMvChangeRateMap(List<PlayerPerformancePrediction> performancePredictions) {
+        List<Long> predictionIds = performancePredictions.stream()
+                .map(PlayerPerformancePrediction::getId)
+                .toList();
+
+        return valuePredictionRepository.findByPlayerPerformancePredictionIdIn(predictionIds)
+                .stream()
+                .filter(valuePrediction -> valuePrediction.getMvChangeRate() != null)
+                .collect(Collectors.toMap(
+                        valuePrediction -> valuePrediction.getPlayerPerformancePrediction().getId(),
+                        PlayerValuePrediction::getMvChangeRate
+                ));
     }
 
     private void runSingleStep(League destinationLeague, PredictionStep predictionStep) {
