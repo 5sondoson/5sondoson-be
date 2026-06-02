@@ -60,8 +60,7 @@ public class PredictionPersistenceService {
                     performancePrediction,
                     player.getPosition(),
                     latestRecordMap.get(aiPerformancePrediction.playerId()),
-                    allRecordsMap.getOrDefault(aiPerformancePrediction.playerId(), List.of()),
-                    player.getAge()
+                    allRecordsMap.getOrDefault(aiPerformancePrediction.playerId(), List.of())
             );
             processed++;
         }
@@ -129,6 +128,38 @@ public class PredictionPersistenceService {
                             similarPlayersPrediction.similarPlayers()
                     );
             similarPlayerRepository.saveAll(similarPlayers);
+            processed++;
+        }
+        return processed;
+    }
+
+    @Transactional
+    public int recomputeAdaptScores(
+            List<PlayerPerformancePrediction> performancePredictions,
+            Map<Long, PlayerSeasonRecord> latestRecordMap,
+            Map<Long, List<PlayerSeasonRecord>> allRecordsMap,
+            Map<Long, Float> mvChangeRateMap
+    ) {
+        int processed = 0;
+        for (PlayerPerformancePrediction performancePrediction : performancePredictions) {
+            Player player = performancePrediction.getPlayer();
+            if (player == null) {
+                continue;
+            }
+            Long playerId = player.getId();
+
+            adaptScoreCalculator.applyPerformanceAdaptScores(
+                    performancePrediction,
+                    player.getPosition(),
+                    latestRecordMap.get(playerId),
+                    allRecordsMap.getOrDefault(playerId, List.of())
+            );
+            adaptScoreCalculator.applyMarketValueAdaptScore(
+                    performancePrediction,
+                    mvChangeRateMap.get(performancePrediction.getId())
+            );
+
+            performancePredictionRepository.save(performancePrediction);
             processed++;
         }
         return processed;

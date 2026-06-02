@@ -55,4 +55,11 @@ public interface PlayerPerformancePredictionRepository extends JpaRepository<Pla
             @Param("league") League league
     );
 
+    @Query("""
+            SELECT ppp FROM PlayerPerformancePrediction ppp
+            JOIN FETCH ppp.player
+            WHERE ppp.destinationLeague = :league
+            """)
+    List<PlayerPerformancePrediction> findAllByDestinationLeagueWithPlayer(@Param("league") League league);
+
 }
