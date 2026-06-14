@@ -13,7 +13,13 @@ public interface PlayerSeasonRecordRepository extends JpaRepository<PlayerSeason
 
     List<PlayerSeasonRecord> findByPlayerInOrderBySeasonStartYearDescIdDesc(List<Player> players);
 
-    List<PlayerSeasonRecord> findByPlayerOrderBySeasonStartYearAsc(Player player);
+    @Query("""
+            SELECT psr FROM PlayerSeasonRecord psr
+            LEFT JOIN FETCH psr.team
+            WHERE psr.player = :player
+            ORDER BY psr.seasonStartYear ASC
+            """)
+    List<PlayerSeasonRecord> findByPlayerOrderBySeasonStartYearAsc(@Param("player") Player player);
 
     Optional<PlayerSeasonRecord> findFirstByPlayerOrderBySeasonStartYearDescIdDesc(Player player);
 
